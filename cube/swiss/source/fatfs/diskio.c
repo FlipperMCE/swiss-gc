@@ -12,12 +12,13 @@
 
 #include <sdcard/gcsd.h>
 #include "ata.h"
+#include "mmceblk.h"
 #include "wkf.h"
 #include <ogc/dvd.h>
 #include "aram.h"
 #include <dvm.h>
 
-static DISC_INTERFACE *iface[FF_VOLUMES] = {&__io_gcsda, &__io_gcsdb, &__io_gcsd2, &__io_ataa, &__io_atab, &__io_atac, &__io_wkf, &__io_gcode, &__io_aram};
+static DISC_INTERFACE *iface[FF_VOLUMES] = {&__io_gcsda, &__io_gcsdb, &__io_gcsd2, &__io_ataa, &__io_atab, &__io_atac, &__io_wkf, &__io_gcode, &__io_aram, &__io_mmce0, &__io_mmce1};
 static DvmDisc *disc[FF_VOLUMES] = {NULL};
 
 

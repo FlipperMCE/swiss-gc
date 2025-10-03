@@ -20,10 +20,13 @@
 #include "ata.h"
 #include "patcher.h"
 #include "dvd.h"
+#include "util.h"
 
 static FATFS *fs[6] = {NULL, NULL, NULL, NULL, NULL, NULL};
 #define SD_COUNT 3
 #define IS_SDCARD(file) (file->name[0] == 's' && file->name[1] == 'd')
+#define IS_MCE(file) (file->name[0] == 'm' && file->name[1] == 'c' && file->name[2] == 'e')
+
 int GET_SLOT(file_handle* file) {
 	if(IS_SDCARD(file)) {
 		return file->name[2] - 'a';
@@ -67,6 +70,13 @@ file_handle initial_ATA_C = {
 	.fileType = IS_DIR,
 	.device   = &__device_ata_c,
 };
+
+file_handle initial_MCE_0 = {
+	.name     = "mcea:/",
+	.fileType = IS_DIR,
+	.device   = &__device_mce_0,
+};
+
 
 static device_info initial_FAT_info[FF_VOLUMES];
 
@@ -170,11 +180,15 @@ s32 deviceHandler_FAT_readFile(file_handle* file, void* buffer, u32 length) {
 s32 deviceHandler_FAT_writeFile(file_handle* file, const void* buffer, u32 length) {
 	if(!file->ffsFp) {
 		file->ffsFp = malloc(sizeof(FIL));
-		if(f_open(file->ffsFp, file->name, FA_CREATE_ALWAYS | FA_WRITE) != FR_OK) {
+		print_debug("Write file:::::\n");
+		FRESULT status = f_open(file->ffsFp, file->name, FA_CREATE_ALWAYS | FA_WRITE);
+		print_debug(":::::::Status: %u\n", status);
+		if(status != FR_OK) {
 			free(file->ffsFp);
 			file->ffsFp = NULL;
 			return -1;
 		}
+		print_debug("File opened successfully!\n");
 		file->fileBase = file->ffsFp->obj.sclust;
 		file->size     = file->ffsFp->obj.objsize;
 		file->fileType = IS_FILE;
@@ -317,9 +331,10 @@ void setSDGeckoSpeed(int slot, bool fast) {
 
 s32 deviceHandler_FAT_init(file_handle* file) {
 	int isSDCard = IS_SDCARD(file);
+	int isMCE    = IS_MCE(file);
 	int slot = GET_SLOT(file);
 	file->status = 0;
-	print_debug("Init %s %i\n", (isSDCard ? "SD":"ATA"), slot);
+	print_debug("Init %s %i\n", (isSDCard ? "SD": isMCE ? "MCE" : "ATA"), slot);
 	// SD Card - Slot A
 	if(isSDCard && slot == 0) {
 		setSDGeckoSpeed(slot, swissSettings.exiSpeed);
@@ -347,12 +362,16 @@ s32 deviceHandler_FAT_init(file_handle* file) {
 		else
 			__device_sd_c.quirks &= ~QUIRK_EXI_SPEED;
 	}
+	if (isMCE && slot == 0) {
+		file->status = fatFs_Mount(DEV_MCE0, "mcea:/");
+		print_debug("Mounted MCE0 with status: %d\n", file->status);
+	}
 	// IDE-EXI - Slot A
-	if(!isSDCard && slot == 0) {
+	if(!isSDCard && !isMCE && slot == 0) {
 		file->status = fatFs_Mount(DEV_ATAA, "ataa:/");
 	}
 	// IDE-EXI - Slot B
-	if(!isSDCard && slot == 1) {
+	if(!isSDCard&& !isMCE && slot == 1) {
 		file->status = fatFs_Mount(DEV_ATAB, "atab:/");
 	}
 	// M.2 Loader
@@ -456,6 +475,9 @@ bool deviceHandler_FAT_test_ata_b() {
 bool deviceHandler_FAT_test_ata_c() {
 	return ide_exi_inserted(2);
 }
+bool deviceHandler_FAT_test_mce_0() {
+	return true; // true for testing purposes, actual detection is done in setup
+}
 
 u32 deviceHandler_FAT_emulated_sd() {
 	if ((swissSettings.emulateAudioStream == 1 && swissSettings.audioStreaming) ||
@@ -475,6 +497,20 @@ u32 deviceHandler_FAT_emulated_ata() {
 	if ((swissSettings.emulateAudioStream == 1 && swissSettings.audioStreaming) ||
 		swissSettings.emulateAudioStream > 1)
 		return EMU_READ | EMU_AUDIO_STREAMING | EMU_BUS_ARBITER;
+	else if (swissSettings.emulateEthernet && (devices[DEVICE_CUR]->emulable & EMU_ETHERNET))
+		return EMU_READ | EMU_ETHERNET | EMU_BUS_ARBITER | EMU_NO_PAUSING;
+	else if (swissSettings.emulateMemoryCard)
+		return EMU_READ | EMU_MEMCARD | EMU_BUS_ARBITER;
+	else
+		return EMU_READ | EMU_BUS_ARBITER;
+}
+
+u32 deviceHandler_FAT_emulated_mce_0() {
+	if ((swissSettings.emulateAudioStream == 1 && swissSettings.audioStreaming) ||
+		swissSettings.emulateAudioStream > 1)
+		return EMU_READ | EMU_AUDIO_STREAMING | EMU_BUS_ARBITER;
+	else if (swissSettings.emulateReadSpeed)
+		return EMU_READ | EMU_READ_SPEED | EMU_BUS_ARBITER;
 	else if (swissSettings.emulateEthernet && (devices[DEVICE_CUR]->emulable & EMU_ETHERNET))
 		return EMU_READ | EMU_ETHERNET | EMU_BUS_ARBITER | EMU_NO_PAUSING;
 	else if (swissSettings.emulateMemoryCard)
@@ -769,4 +805,33 @@ DEVICEHANDLER_INTERFACE __device_ata_c = {
 	.deinit = deviceHandler_FAT_deinit,
 	.emulated = deviceHandler_FAT_emulated_sd,
 	.status = deviceHandler_FAT_status,
+};
+
+DEVICEHANDLER_INTERFACE __device_mce_0 = {
+	.deviceUniqueId = DEVICE_ID_L,
+	.hwName = "Multipurpose Memory Card Emu",
+	.deviceName = "MMCE - Slot A",
+	.deviceDescription = "MMCE - Supported File System(s): FAT16, FAT32, exFAT",
+	.deviceTexture = {TEX_SDSMALL, 59, 78, 64, 80},
+	.features = FEAT_READ|FEAT_WRITE|FEAT_BOOT_GCM|FEAT_BOOT_DEVICE|FEAT_CONFIG_DEVICE|FEAT_AUTOLOAD_DOL|FEAT_THREAD_SAFE|FEAT_HYPERVISOR|FEAT_PATCHES|FEAT_AUDIO_STREAMING|FEAT_EXI_SPEED,
+	.emulable = EMU_READ|EMU_READ_SPEED|EMU_AUDIO_STREAMING|EMU_MEMCARD,
+	.location = LOC_MEMCARD_SLOT_A,
+	.initial = &initial_MCE_0,
+	.test = deviceHandler_FAT_test_mce_0,
+	.info = deviceHandler_FAT_info,
+	.init = deviceHandler_FAT_init,
+	.makeDir = deviceHandler_FAT_makeDir,
+	.readDir = deviceHandler_FAT_readDir,
+	.statFile = deviceHandler_FAT_statFile,
+	.seekFile = deviceHandler_FAT_seekFile,
+	.readFile = deviceHandler_FAT_readFile,
+	.writeFile = deviceHandler_FAT_writeFile,
+	.closeFile = deviceHandler_FAT_closeFile,
+	.deleteFile = deviceHandler_FAT_deleteFile,
+	.renameFile = deviceHandler_FAT_renameFile,
+	.hideFile = deviceHandler_FAT_hideFile,
+	.setupFile = deviceHandler_FAT_setupFile,
+	.deinit = deviceHandler_FAT_deinit,
+	.emulated = deviceHandler_FAT_emulated_mce_0,
+	.status = deviceHandler_FAT_status
 };

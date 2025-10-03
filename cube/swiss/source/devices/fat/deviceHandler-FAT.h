@@ -15,6 +15,7 @@ extern DEVICEHANDLER_INTERFACE __device_sd_c;
 extern DEVICEHANDLER_INTERFACE __device_ata_a;
 extern DEVICEHANDLER_INTERFACE __device_ata_b;
 extern DEVICEHANDLER_INTERFACE __device_ata_c;
+extern DEVICEHANDLER_INTERFACE __device_mce_0;
 
 extern device_info* deviceHandler_FAT_info(file_handle* file);
 extern s32 deviceHandler_FAT_makeDir(file_handle* dir);

@@ -460,7 +460,7 @@ typedef struct {	/* Open object identifier with status */
 /* File/Volume controls           */
 /*--------------------------------*/
 
-#if FF_VOLUMES < 1 || FF_VOLUMES > 10
+#if FF_VOLUMES < 1 || FF_VOLUMES > 12
 #error Wrong FF_VOLUMES setting
 #endif
 static FATFS *FatFs[FF_VOLUMES];	/* Pointer to the filesystem objects (logical drives) */
@@ -2355,6 +2355,7 @@ static FRESULT dir_read (
 
 	while (dp->sect) {
 		res = move_window(fs, dp->sect);
+
 		if (res != FR_OK) break;
 		et = dp->dir[DIR_Name];	/* Test for the entry type */
 		if (et == 0) {
@@ -3837,6 +3838,7 @@ FRESULT f_open (
 		dj.obj.fs = fs;
 		INIT_NAMEBUFF(fs);
 		res = follow_path(&dj, path);	/* Follow the file path */
+
 #if !FF_FS_READONLY	/* Read/Write configuration */
 		if (res == FR_OK) {
 			if (dj.fn[NSFLAG] & NS_NONAME) {	/* Origin directory itself? */
@@ -3867,6 +3869,7 @@ FRESULT f_open (
 					if (dj.obj.attr & (AM_RDO | AM_DIR)) res = FR_DENIED;	/* Cannot overwrite it (R/O or DIR) */
 				}
 			}
+
 			if (res == FR_OK && (mode & FA_CREATE_ALWAYS)) {	/* Truncate the file if overwrite mode */
 				DWORD tm = GET_FATTIME();
 #if FF_FS_EXFAT
