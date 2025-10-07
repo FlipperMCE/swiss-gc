@@ -15,18 +15,20 @@
 
 
 
-#define PAGE_SIZE512 512
-static bool __mmce_init = false;
-static lwpq_t __mmce_queue = LWP_TQUEUE_NULL;
+#define MMCE_PAGE_SIZE512 512
 
-static volatile bool __mmce_io_in_progress = false;
+#define PARTITION_TABLE_OFFSET 0x1BE
+#define PARTITION_ENTRY_SIZE   16
+#define NUM_PARTITIONS         4
+
 static sem_t __mmce_irq_sem;
+
+static bool __mmce_readSectors(DISC_INTERFACE* disc, sec_t sector, sec_t numSectors, void* buffer);
 
 
 static s32 __MMCE_EXI_Handler(s32 chan, s32 dev) {
     if (chan < 0 || chan > 1) return -1;
     
-    __mmce_io_in_progress = false;
     LWP_SemPost(__mmce_irq_sem);
 
     return 1;
@@ -41,80 +43,49 @@ static u32 mmce_getDevice(s32 chan) {
 
 
 static bool __mmce_startup(DISC_INTERFACE* disc) {
-   /* s32 ret,chan = (disc->ioType&0xff)-'0';
-	u32 dev;
+    s32 ret,chan = (disc->ioType&0xff)-'0';
+    u32 dev;
+    u8 mbr [MMCE_PAGE_SIZE512] = {};
 
-	if(disc->ioType < DEVICE_TYPE_GAMECUBE_MCE(0)) return false;
-	if(disc->ioType > DEVICE_TYPE_GAMECUBE_MCE(1)) return false;
+    if(disc->ioType < DEVICE_TYPE_GAMECUBE_MCE(0)) return false;
+    if(disc->ioType > DEVICE_TYPE_GAMECUBE_MCE(1)) return false;
+/*
+    dev = mmce_getDevice(chan);
 
-	if(!__mmce_init) {
-        // Initialize the memory card emulator 
-		sdgecko_initBufferPool();
-		sdgecko_initIODefault();
-		__mmce_init = true;
-	}
+    // Read MBR (0x00, 512B)
+    __mmce_readSectors(disc, 0x00, 1U, mbr);
+    // for each entry (16Byte) check 0x08 (4Byte le) + 0x0C (4Byte le)
 
-	dev = mmce_getDevice(chan);
+    for (int i = 0; i < NUM_PARTITIONS; i++) {
+        const uint8_t *entry = mbr + PARTITION_TABLE_OFFSET + i * PARTITION_ENTRY_SIZE;
 
-	ret = sdgecko_preIO(chan);
-	if(ret != CARDIO_ERROR_READY) {
-		if(dev == EXI_DEVICE_0)
-			sdgecko_setDevice(chan, EXI_DEVICE_2);
-		else
-			sdgecko_setDevice(chan, EXI_DEVICE_0);
+        uint32_t start_lba = (uint32_t)(entry + 8)[0]
+                            | ((uint32_t)(entry + 8)[1] << 8)
+                            | ((uint32_t)(entry + 8)[2] << 16)
+                            | ((uint32_t)(entry + 8)[3] << 24);
+        uint32_t num_sectors = (uint32_t)(entry + 12)[0]
+                            | ((uint32_t)(entry + 12)[1] << 8)
+                            | ((uint32_t)(entry + 12)[2] << 16)
+                            | ((uint32_t)(entry + 12)[3] << 24);
 
-		ret = sdgecko_preIO(chan);
-	}
+        if (num_sectors == 0)
+            continue; // empty partition entry
 
-	if(ret == CARDIO_ERROR_READY) {
-		dev = sdgecko_getDevice(chan);
+        uint32_t end_lba = start_lba + num_sectors; // one past the last sector
+        if (end_lba > disc->numberOfSectors);
+            disc->numberOfSectors = end_lba;
+    }
+*/
 
-		if(chan == EXI_CHANNEL_0) {
-			if(dev == EXI_DEVICE_0) {
-				disc->features |= FEATURE_GAMECUBE_SLOTA;
-				disc->features &= ~FEATURE_GAMECUBE_PORT1;
-			} else {
-				disc->features |= FEATURE_GAMECUBE_PORT1;
-				disc->features &= ~FEATURE_GAMECUBE_SLOTA;
-			}
-		}
-
-		if(PERM_WRITE_PROTECT(chan) || TMP_WRITE_PROTECT(chan))
-			disc->features &= ~FEATURE_MEDIUM_CANWRITE;
-		else
-			disc->features |= FEATURE_MEDIUM_CANWRITE;
-
-		switch(CSD_STRUCTURE(chan)) {
-			case 0:
-				disc->numberOfSectors = ((C_SIZE(chan) + 1) << (C_SIZE_MULT(chan) + 2)) << (READ_BL_LEN(chan) - 9);
-				break;
-			case 1:
-				disc->numberOfSectors = (C_SIZE1(chan) + 1LL) << 10;
-				break;
-			case 2:
-				disc->numberOfSectors = (C_SIZE2(chan) + 1LL) << 10;
-				break;
-			default:
-				disc->numberOfSectors = ~0;
-				break;
-		}
-
-		return true;
-	}
-
-	sdgecko_setDevice(chan, dev);*/
-    if (!__mmce_init) __mmce_init = true;
-
-    LWP_InitQueue(&__mmce_queue);
     LWP_SemInit(&__mmce_irq_sem, 0, 1);
 
-	return true;
+    return true;
 }
 
 static bool __mmce_isInserted(DISC_INTERFACE* disc) 
 {
     s32 chan = (disc->ioType&0xff)-'0';
-	u32 dev = (chan == 0) ? EXI_DEVICE_0 : EXI_DEVICE_1;
+    u32 dev = (chan == 0) ? EXI_DEVICE_0 : EXI_DEVICE_1;
     if (EXI_Probe(chan))
     {
         bool err = false;
@@ -150,16 +121,10 @@ static bool __mmce_readSectors(DISC_INTERFACE* disc, sec_t sector, sec_t numSect
     u8 cmd[10] = {0x8B, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     
     s32 ret = 0,chan = (disc->ioType&0xff)-'0';
-	u32 dev = (chan == 0) ? EXI_DEVICE_0 : EXI_DEVICE_1;
-
-    u64 start_time = gettime();
-
-    //print_debug("MMCE read: sector %lld, numSectors %lld\n", sector, numSectors);
+    u32 dev = (chan == 0) ? EXI_DEVICE_0 : EXI_DEVICE_1;
     
-	if(disc->ioType < DEVICE_TYPE_GAMECUBE_MCE(0)) return false;
-	if(disc->ioType > DEVICE_TYPE_GAMECUBE_MCE(1)) return false;
-
-    //print_debug("MMCE read: chan %d, dev %d\n", chan, dev);
+    if(disc->ioType < DEVICE_TYPE_GAMECUBE_MCE(0)) return false;
+    if(disc->ioType > DEVICE_TYPE_GAMECUBE_MCE(1)) return false;
 
     cmd[2] = (sector >> 24) & 0xFF;
     cmd[3] = (sector >> 16) & 0xFF;
@@ -170,23 +135,20 @@ static bool __mmce_readSectors(DISC_INTERFACE* disc, sec_t sector, sec_t numSect
     cmd[8] = (numSectors >> 8) & 0xFF;
     cmd[9] = numSectors & 0xFF;
 
-    //print_debug("MMCE read: locking\n");
     if (EXI_LockEx(chan, dev) < 0)
     {
         print_debug("MMCE read: lock failed\n");
         return false;
     }
     
-	if (!EXI_Select(chan, dev, EXI_SPEED16MHZ)) 
+    if (!EXI_Select(chan, dev, EXI_SPEED16MHZ)) 
     {
         EXI_Unlock(chan);
         return false;
     }
-    __mmce_io_in_progress = true;
 
-	ret |= !EXI_ImmEx(chan, &cmd, sizeof(cmd), EXI_WRITE);
-    //print_debug("MMCE read: command sent\n");
-	ret |= !EXI_Deselect(chan);
+    ret |= !EXI_ImmEx(chan, &cmd, sizeof(cmd), EXI_WRITE);
+    ret |= !EXI_Deselect(chan);
 
     EXI_Unlock(chan);
     EXI_RegisterEXICallback(chan, __MMCE_EXI_Handler);
@@ -197,14 +159,9 @@ static bool __mmce_readSectors(DISC_INTERFACE* disc, sec_t sector, sec_t numSect
     };
     if (LWP_SemTimedWait(__mmce_irq_sem, &timeout) != 0) {
         print_debug("MMCE read: timeout waiting for interrupt\n");
-        __mmce_io_in_progress = false;
         return false;
     }
 
-    //LWP_ThreadSleep(__mmce_queue);
-
-    //print_debug("MMCE: Interrupt received, starting read\n");
-    
 
     // Wait for interrupt
     uint8_t retries = 5U;
@@ -214,27 +171,24 @@ static bool __mmce_readSectors(DISC_INTERFACE* disc, sec_t sector, sec_t numSect
         EXI_RegisterEXICallback(chan, __MMCE_EXI_Handler);
 
         EXI_LockEx(chan, dev);
-        u8* ptr = (u8*)buffer + (i * PAGE_SIZE512);
+        u8* ptr = (u8*)buffer + (i * MMCE_PAGE_SIZE512);
         if (!EXI_Select(chan, dev, EXI_SPEED32MHZ)) 
         {
             EXI_Unlock(chan);
             print_debug("MMCE read: select failed\n");
             return false;
         }
-        __mmce_io_in_progress = true;
         EXI_ImmEx(chan, cmd, 2, EXI_WRITE);
         
-        ret |= !EXI_DmaEx(chan, ptr, PAGE_SIZE512, EXI_READ);
+        ret |= !EXI_DmaEx(chan, ptr, MMCE_PAGE_SIZE512, EXI_READ);
         ret |= !EXI_Deselect(chan);
         EXI_Unlock(chan);
-       // print_debug("Sleeping now... ret: %d\n", ret);
         struct timespec timeout = {
             .tv_sec = 5,  // 5 second timeout
             .tv_nsec = 0
         };
         if (LWP_SemTimedWait(__mmce_irq_sem, &timeout) != 0) {
             print_debug("MMCE read: timeout waiting for interrupt\n");
-            __mmce_io_in_progress = false;
             if (--retries > 0U) {
                 i -= 1;
                 sleep(2);
@@ -242,25 +196,17 @@ static bool __mmce_readSectors(DISC_INTERFACE* disc, sec_t sector, sec_t numSect
             else
                 break;
         }
-
-
     }
-    //print_debug("MMCE read: done %lld\n", sector );
     EXI_RegisterEXICallback(chan, NULL);
-    u64 time_diff = diff_usec(start_time, gettime());
 
-    print_debug("MMCE read: total read of %lld sectors done in %u ms - %.02f kB/s\n", numSectors, (u32)time_diff / 1000, (float)((numSectors * PAGE_SIZE512 * 1000)  / (time_diff)));
-
-	return ret == 0;
+    return ret == 0;
 }
 
 static bool __mmce_writeSectors(DISC_INTERFACE* disc, sec_t sector, sec_t numSectors, const void* buffer) {
     u8 cmd[10] = {0x8B, 0x22, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     
     s32 ret = 0,chan = (disc->ioType&0xff)-'0';
-	u32 dev = (chan == 0) ? EXI_DEVICE_0 : EXI_DEVICE_1;
-
-    u64 start_time = gettime();
+    u32 dev = (chan == 0) ? EXI_DEVICE_0 : EXI_DEVICE_1;
 
     if(disc->ioType < DEVICE_TYPE_GAMECUBE_MCE(0)) return false;
     if(disc->ioType > DEVICE_TYPE_GAMECUBE_MCE(1)) return false;
@@ -280,15 +226,14 @@ static bool __mmce_writeSectors(DISC_INTERFACE* disc, sec_t sector, sec_t numSec
         return false;
     }
     
-	if (!EXI_Select(chan, dev, EXI_SPEED16MHZ)) 
+    if (!EXI_Select(chan, dev, EXI_SPEED16MHZ)) 
     {
         EXI_Unlock(chan);
         return false;
     }
-    __mmce_io_in_progress = true;
 
-	ret |= !EXI_ImmEx(chan, &cmd, sizeof(cmd), EXI_WRITE);
-	ret |= !EXI_Deselect(chan);
+    ret |= !EXI_ImmEx(chan, &cmd, sizeof(cmd), EXI_WRITE);
+    ret |= !EXI_Deselect(chan);
 
     EXI_Unlock(chan);
     EXI_RegisterEXICallback(chan, __MMCE_EXI_Handler);
@@ -299,7 +244,6 @@ static bool __mmce_writeSectors(DISC_INTERFACE* disc, sec_t sector, sec_t numSec
     };
     if (LWP_SemTimedWait(__mmce_irq_sem, &timeout) != 0) {
         print_debug("MMCE write: timeout waiting for interrupt\n");
-        __mmce_io_in_progress = false;
         return false;
     }
 
@@ -309,17 +253,16 @@ static bool __mmce_writeSectors(DISC_INTERFACE* disc, sec_t sector, sec_t numSec
         EXI_RegisterEXICallback(chan, __MMCE_EXI_Handler);
 
         EXI_LockEx(chan, dev);
-        u8* ptr = (u8*)buffer + (i * PAGE_SIZE512);
+        u8* ptr = (u8*)buffer + (i * MMCE_PAGE_SIZE512);
         if (!EXI_Select(chan, dev, EXI_SPEED16MHZ)) 
         {
             EXI_Unlock(chan);
             print_debug("MMCE write: select failed\n");
             return false;
         }
-        __mmce_io_in_progress = true;
         EXI_ImmEx(chan, cmd, 2, EXI_WRITE);
         
-        ret |= !EXI_DmaEx(chan, ptr, PAGE_SIZE512, EXI_WRITE);
+        ret |= !EXI_DmaEx(chan, ptr, MMCE_PAGE_SIZE512, EXI_WRITE);
         ret |= !EXI_Deselect(chan);
         EXI_Unlock(chan);
 
@@ -331,17 +274,12 @@ static bool __mmce_writeSectors(DISC_INTERFACE* disc, sec_t sector, sec_t numSec
 
         if (LWP_SemTimedWait(__mmce_irq_sem, &timeout) != 0) {
             print_debug("MMCE read: timeout waiting for interrupt\n");
-            __mmce_io_in_progress = false;
             break;
         }
     }
     EXI_RegisterEXICallback(chan, NULL);
-    u64 time_diff = diff_usec(start_time, gettime());
-    
-    print_debug("MMCE write: total write of %lld sectors done in %u ms - %.02f kB/s\n", numSectors, (u32)time_diff / 1000, (float)((numSectors * PAGE_SIZE512 * 1000)  / (time_diff)));
 
-
-	return ret == 0;
+    return ret == 0;
 }
 
 static bool __mmce_clearStatus(DISC_INTERFACE* disc) {
@@ -355,27 +293,27 @@ static bool __mmce_shutdown(DISC_INTERFACE* disc) {
 
 
 DISC_INTERFACE __io_mmce0 = {
-	DEVICE_TYPE_GAMECUBE_MCE(0),
-	FEATURE_MEDIUM_CANREAD | FEATURE_MEDIUM_CANWRITE | FEATURE_GAMECUBE_SLOTA,
-	&__mmce_startup,
-	&__mmce_isInserted,
-	&__mmce_readSectors,
-	&__mmce_writeSectors,
-	&__mmce_clearStatus,
-	&__mmce_shutdown,
-	64 * 1024 * 1024 * 2, // 64 gb
-	PAGE_SIZE512
+    DEVICE_TYPE_GAMECUBE_MCE(0),
+    FEATURE_MEDIUM_CANREAD | FEATURE_MEDIUM_CANWRITE | FEATURE_GAMECUBE_SLOTA,
+    &__mmce_startup,
+    &__mmce_isInserted,
+    &__mmce_readSectors,
+    &__mmce_writeSectors,
+    &__mmce_clearStatus,
+    &__mmce_shutdown,
+    0xFFFFFFFFFFFFFFFF,
+    MMCE_PAGE_SIZE512
 };
 
 DISC_INTERFACE __io_mmce1 = {
-	DEVICE_TYPE_GAMECUBE_MCE(1),
-	FEATURE_MEDIUM_CANREAD | /*FEATURE_MEDIUM_CANWRITE |*/ FEATURE_GAMECUBE_SLOTB,
-	__mmce_startup,
-	__mmce_isInserted,
-	__mmce_readSectors,
-	__mmce_writeSectors,
-	__mmce_clearStatus,
-	__mmce_shutdown,
-	0,
-	PAGE_SIZE512
+    DEVICE_TYPE_GAMECUBE_MCE(1),
+    FEATURE_MEDIUM_CANREAD | FEATURE_MEDIUM_CANWRITE | FEATURE_GAMECUBE_SLOTB,
+    __mmce_startup,
+    __mmce_isInserted,
+    __mmce_readSectors,
+    __mmce_writeSectors,
+    __mmce_clearStatus,
+    __mmce_shutdown,
+    0xFFFFFFFFFFFFFFFF,
+    MMCE_PAGE_SIZE512
 };
