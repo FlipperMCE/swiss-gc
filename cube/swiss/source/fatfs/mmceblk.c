@@ -33,14 +33,7 @@ static s32 __MMCE_EXI_Handler(s32 chan, s32 dev) {
 
     return 1;
 }
-/*
 
-static u32 mmce_getDevice(s32 chan) {
-    if (chan < 0 || chan > 1) return -1;
-
-    return chan == 0 ? EXI_DEVICE_0 : EXI_DEVICE_1; 
-}
-*/
 
 static bool __mmce_startup(DISC_INTERFACE* disc) {
     /*
@@ -50,7 +43,7 @@ static bool __mmce_startup(DISC_INTERFACE* disc) {
     if(disc->ioType < DEVICE_TYPE_GAMECUBE_MCE(0)) return false;
     if(disc->ioType > DEVICE_TYPE_GAMECUBE_MCE(1)) return false;
     u8 mbr [MMCE_PAGE_SIZE512] = {};
-    dev = mmce_getDevice(chan);
+    dev = chan == 0 ? EXI_DEVICE_0 : EXI_DEVICE_1;
 
     // Read MBR (0x00, 512B)
     __mmce_readSectors(disc, 0x00, 1U, mbr);
