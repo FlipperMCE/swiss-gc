@@ -225,6 +225,7 @@ int main(int argc, char *argv[])
 	allDevices[i++] = &__device_ftp;
 	allDevices[i++] = &__device_fsp;
 	allDevices[i++] = &__device_mce_0;
+	allDevices[i++] = &__device_mce_1;
 	allDevices[i++] = NULL;
 	
 	// Set current devices

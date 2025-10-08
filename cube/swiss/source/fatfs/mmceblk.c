@@ -43,7 +43,7 @@ static bool __mmce_startup(DISC_INTERFACE* disc) {
     if(disc->ioType < DEVICE_TYPE_GAMECUBE_MCE(0)) return false;
     if(disc->ioType > DEVICE_TYPE_GAMECUBE_MCE(1)) return false;
     u8 mbr [MMCE_PAGE_SIZE512] = {};
-    dev = chan == 0 ? EXI_DEVICE_0 : EXI_DEVICE_1;
+    dev = EXI_DEVICE_0;
 
     // Read MBR (0x00, 512B)
     __mmce_readSectors(disc, 0x00, 1U, mbr);
@@ -78,7 +78,7 @@ static bool __mmce_startup(DISC_INTERFACE* disc) {
 static bool __mmce_isInserted(DISC_INTERFACE* disc) 
 {
     s32 chan = (disc->ioType&0xff)-'0';
-    u32 dev = (chan == 0) ? EXI_DEVICE_0 : EXI_DEVICE_1;
+    u32 dev =  EXI_DEVICE_0;
     if (EXI_Probe(chan))
     {
         bool err = false;
@@ -114,7 +114,7 @@ static bool __mmce_readSectors(DISC_INTERFACE* disc, sec_t sector, sec_t numSect
     u8 cmd[10] = {0x8B, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     
     s32 ret = 0,chan = (disc->ioType&0xff)-'0';
-    u32 dev = (chan == 0) ? EXI_DEVICE_0 : EXI_DEVICE_1;
+    u32 dev = EXI_DEVICE_0;
     
     if(disc->ioType < DEVICE_TYPE_GAMECUBE_MCE(0)) return false;
     if(disc->ioType > DEVICE_TYPE_GAMECUBE_MCE(1)) return false;
@@ -199,7 +199,7 @@ static bool __mmce_writeSectors(DISC_INTERFACE* disc, sec_t sector, sec_t numSec
     u8 cmd[10] = {0x8B, 0x22, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     
     s32 ret = 0,chan = (disc->ioType&0xff)-'0';
-    u32 dev = (chan == 0) ? EXI_DEVICE_0 : EXI_DEVICE_1;
+    u32 dev = EXI_DEVICE_0;
 
     if(disc->ioType < DEVICE_TYPE_GAMECUBE_MCE(0)) return false;
     if(disc->ioType > DEVICE_TYPE_GAMECUBE_MCE(1)) return false;

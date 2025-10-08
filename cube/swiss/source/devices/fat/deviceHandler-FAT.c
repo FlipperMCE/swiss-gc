@@ -15,6 +15,8 @@
 #include "deviceHandler.h"
 #include "gui/FrameBufferMagic.h"
 #include "gui/IPLFontWrite.h"
+#include "mcp.h"
+#include "ogc/card.h"
 #include "swiss.h"
 #include "main.h"
 #include "ata.h"
@@ -75,6 +77,12 @@ file_handle initial_MCE_0 = {
 	.name     = "mcea:/",
 	.fileType = IS_DIR,
 	.device   = &__device_mce_0,
+};
+
+file_handle initial_MCE_1 = {
+	.name     = "mceb:/",
+	.fileType = IS_DIR,
+	.device   = &__device_mce_1,
 };
 
 
@@ -364,7 +372,8 @@ s32 deviceHandler_FAT_init(file_handle* file) {
 	}
 	if (isMCE && slot == 0) {
 		file->status = fatFs_Mount(DEV_MCE0, "mcea:/");
-		print_debug("Mounted MCE0 with status: %d\n", file->status);
+	} if (isMCE && slot == 1) {
+		file->status = fatFs_Mount(DEV_MCE0, "mceb:/");
 	}
 	// IDE-EXI - Slot A
 	if(!isSDCard && !isMCE && slot == 0) {
@@ -476,7 +485,12 @@ bool deviceHandler_FAT_test_ata_c() {
 	return ide_exi_inserted(2);
 }
 bool deviceHandler_FAT_test_mce_0() {
-	return true; // true for testing purposes, actual detection is done in setup
+	u32 id;
+	return MCP_GetDeviceID(CARD_SLOTA, &id) == MCP_RESULT_READY;
+}
+bool deviceHandler_FAT_test_mce_1() {
+	u32 id;
+	return MCP_GetDeviceID(CARD_SLOTB, &id) == MCP_RESULT_READY;
 }
 
 u32 deviceHandler_FAT_emulated_sd() {
@@ -505,7 +519,7 @@ u32 deviceHandler_FAT_emulated_ata() {
 		return EMU_READ | EMU_BUS_ARBITER;
 }
 
-u32 deviceHandler_FAT_emulated_mce_0() {
+u32 deviceHandler_FAT_emulated_mce() {
 	if ((swissSettings.emulateAudioStream == 1 && swissSettings.audioStreaming) ||
 		swissSettings.emulateAudioStream > 1)
 		return EMU_READ | EMU_AUDIO_STREAMING | EMU_BUS_ARBITER;
@@ -832,6 +846,35 @@ DEVICEHANDLER_INTERFACE __device_mce_0 = {
 	.hideFile = deviceHandler_FAT_hideFile,
 	.setupFile = deviceHandler_FAT_setupFile,
 	.deinit = deviceHandler_FAT_deinit,
-	.emulated = deviceHandler_FAT_emulated_mce_0,
+	.emulated = deviceHandler_FAT_emulated_mce,
+	.status = deviceHandler_FAT_status
+};
+
+DEVICEHANDLER_INTERFACE __device_mce_1 = {
+	.deviceUniqueId = DEVICE_ID_M,
+	.hwName = "Multipurpose Memory Card Emu",
+	.deviceName = "MMCE - Slot B",
+	.deviceDescription = "MMCE - Supported File System(s): FAT16, FAT32, exFAT",
+	.deviceTexture = {TEX_SDSMALL, 59, 78, 64, 80},
+	.features = FEAT_READ|FEAT_WRITE|FEAT_BOOT_GCM|FEAT_BOOT_DEVICE|FEAT_CONFIG_DEVICE|FEAT_AUTOLOAD_DOL|FEAT_THREAD_SAFE|FEAT_HYPERVISOR|FEAT_PATCHES|FEAT_AUDIO_STREAMING|FEAT_EXI_SPEED,
+	.emulable = EMU_READ|EMU_READ_SPEED|EMU_AUDIO_STREAMING|EMU_MEMCARD,
+	.location = LOC_MEMCARD_SLOT_B,
+	.initial = &initial_MCE_1,
+	.test = deviceHandler_FAT_test_mce_1,
+	.info = deviceHandler_FAT_info,
+	.init = deviceHandler_FAT_init,
+	.makeDir = deviceHandler_FAT_makeDir,
+	.readDir = deviceHandler_FAT_readDir,
+	.statFile = deviceHandler_FAT_statFile,
+	.seekFile = deviceHandler_FAT_seekFile,
+	.readFile = deviceHandler_FAT_readFile,
+	.writeFile = deviceHandler_FAT_writeFile,
+	.closeFile = deviceHandler_FAT_closeFile,
+	.deleteFile = deviceHandler_FAT_deleteFile,
+	.renameFile = deviceHandler_FAT_renameFile,
+	.hideFile = deviceHandler_FAT_hideFile,
+	.setupFile = deviceHandler_FAT_setupFile,
+	.deinit = deviceHandler_FAT_deinit,
+	.emulated = deviceHandler_FAT_emulated_mce,
 	.status = deviceHandler_FAT_status
 };
