@@ -152,6 +152,7 @@ static const struct {
 	{ "apploader.img", /* 2002/04/10       */  113536, 0xBBF3FF7C1A14AA59 },
 	{ "apploader.img", /* 2002/04/10       */  113536, 0xDC2A278D4F92A68C },
 	{ "apploader.img", /* 2002/09/05       */  116512, 0x42C07D59E1227D14 },
+	{ "apploader.img", /* 2002/09/05       */  116512, 0x4E907A28728D421A },
 	{ "apploader.img", /* 2002/09/05       */  116512, 0x6587E6A4F9663BB7 },
 	{ "apploader.img", /* 2002/09/05       */  116512, 0xA607D68783177BA3 },
 	{ "apploader.img", /* 2002/09/05       */  116512, 0xE0A70AC76B355E02 },
@@ -184,7 +185,7 @@ static const struct {
 	{ "apploader.img", /* 2024/09/14       */  113536, 0xBECA9866ECE7A957 },
 	{ "apploader.img", /* 2024/09/17       */  113536, 0x623687789597750B },
 	{ "apploader.img", /* 2025/07/10       */  113536, 0xED22F838A52EABC5 },
-#define NKIT_FIRM_COUNT (FIRM_COUNT + 126)
+#define NKIT_FIRM_COUNT (FIRM_COUNT + 127)
 	{ "240p Test Suite (World) (v1.04) (Program) (Aftermarket) (Unl).dol",        2301384, 0x71BCDBA149B3AAAF },
 	{ "240p Test Suite (World) (v1.06) (Program) (Aftermarket) (Unl).dol",         930560, 0x7EB7DDDAF5105457 },
 	{ "240p Test Suite (World) (v1.07) (Program) (Aftermarket) (Unl).dol",         932032, 0x4DAB8540272CCBD5 },
@@ -271,6 +272,7 @@ static const struct {
 	{{ "301E01\x00\x00" }, true,  0x83, 0x2291, 0xBE031BBE, 0x7AB7116BCF31F77C,  220121088, +1239857152, {  152535040, +1239842816, 6496, 0x1086 }, "Nintendo GameCube Service Disc Version 1.0/03" },
 	{{ "BOER51\x00\x00" }, false, 0xC8, 0xFA3E, 0x70BE6BAE, 0x33379E7CF4001A79, 1301760000,  +158218240, {  193123256,      +32136, 6496, 0x34EC }, "Burnout" },
 	{{ "D23J01\x00\x00" }, true,  0x75, 0x54F8, 0x385BDC6A, 0x0565886A07B73EEE, 1310650368,  +149327872, {  584824840,  +149335704, 6496, 0x51A7 }, "Game Taikai Yuushou Kinen: Tokusei SmaBro DX Movie Disc" },
+	{{ "D24J01\x00\x00" }, true,  0x80, 0xBFF3, 0x0DD683CE, 0x414B1A6F96A6694C,  517310464,  +942667776, {    6171064,  +942652648, 6496, 0xE8A2 }, "SmaBro DX Event-you Disc" },
 	{{ "D29J01\x00\x00" }, true,  0xC8, 0x944D, 0x87E9B682, 0xBA59F1A3D46EC35C,  967475200,  +492503040, {  473567348,  +492492332, 6496, 0x91C4 }, "Gekkan Nintendo Tentou Demo 2002.5.1" },
 	{{ "D32J01\x00\x00" }, true,  0xD9, 0x264C, 0x8C63ED7D, 0x40112DE6CDA8F156, 1017810944,  +442167296, {  688658456,  +442125960, 6496, 0x6C95 }, "Gekkan Nintendo Tentou Demo 2002.6.1" },
 	{{ "D33J01\x00\x00" }, true,  0xD9, 0xED1C, 0x86DACAB6, 0x494DCCBEDC286160, 1442138112,   +17840128, {  920004864,   +17849108, 6496, 0x72C1 }, "Gekkan Nintendo Tentou Demo 2002.7.1" },
@@ -2006,6 +2008,7 @@ static const struct {
 	{{ "GUPE8P\x00\x00" }, false, 0xA0, 0xCD07, 0xF582CF1E, 0x88D6C86BE328207C, 1362565120,   +97413120, {  471429212,      +27392, 6496, 0x72C2 }, "Shadow the Hedgehog" },
 	{{ "GUPJ8P\x00\x00" }, false, 0xA2, 0x022B, 0x529BAA3A, 0x70A512ADF460014E, 1383862272,   +76115968, {  471468172,      +25824, 6496, 0xB744 }, "Shadow the Hedgehog" },
 	{{ "GUPP8P\x00\x00" }, false, 0x14, 0x9A3D, 0xDB7D8CD9, 0x11CE6FC29F8047E1, 1362610176,   +97368064, {  471470120,      +23264, 8096, 0x5C5A }, "Shadow the Hedgehog" },
+	{{ "GUPP8P\x00\x00" }, false, 0x49, 0xA5F4, 0xDBF1A4FE, 0x8B2965CA37DE0F4C, 1384206336,   +75771904, {  489414316,      +19372, 8096, 0x386E }, "Shadow the Hedgehog" },
 	{{ "GUSE7F\x00\x00" }, true,  0x67, 0xD55D, 0x6CDF5761, 0x740D111CC48B4B92,  849780736,  +610197504, {  498765476,     +163840, 6496, 0x6D79 }, "Universal Studios Theme Park Adventure" },
 	{{ "GUSJ28\x00\x00" }, true,  0xE0, 0x8E63, 0x9C1BC747, 0xBC552197800FF499,  833183744,  +626794496, {  498200316,     +163840, 6496, 0x0F1C }, "Universal Studios Japan Adventure" },
 	{{ "GUSP7F\x00\x00" }, true,  0x98, 0x6F25, 0x8A739C2B, 0x056B6AD76CD91E37,  840755200,  +619223040, {  494341836,     +131072, 6496, 0x827C }, "Universal Studios Theme Park Adventure" },
@@ -2277,7 +2280,7 @@ static const struct {
 	{{ "UGPP01\x00\x01" }, false, 0x2A, 0x6D4F, 0x5ECD9681, 0x4E9244DEFB94F10C,    5079040, +1454899200, {    2317764,       +8764, 8096, 0x8972 }, "Game Boy Player Start-Up Disc" },
 	{{ "UGPP01\x00\x02" }, false, 0x3A, 0xCA50, 0x1E26380C, 0x483B4CE794041533,    5079040, +1454899200, {    2317764,       +8764, 8096, 0x8972 }, "Game Boy Player Start-Up Disc" },
 	{{ "XXXXXX\x00\x01" }, false, 0x83, 0x7056, 0x5995AC59, 0x5CBC3D9F00D75112, 1287913472,  +172064768, {         ~0,          +0,    0, 0xFFFF }, "LEGO Super Soccer Adventure" },
-#define REDUMP_COUNT (2015)
+#define REDUMP_COUNT (2017)
 	{{"00\0E01\x00\x00" }, false, 0x8B, 0x42A2, 0x499CF1AB, 0xC1BAC83BFBED3EDB,   31170560, +1428807680, {    7795364,      +23900, 6496, 0xBBEA }, "Nintendo Developer Demo" },
 	{{"00\0E01\x00\x00" }, false, 0xD9, 0x21CF, 0xBF114CB3, 0xC1BAC83BFBED3EDB,   31170560, +1428807680, {    7795364,      +23900, 6496, 0xBBEA }, "Nintendo Developer Demo" },
 	{{ "060J01\x00\x00" }, true,  0x7E, 0x27AC, 0x94C088DF, 0x55221BF909AB54CC,  171485184, +1288493056, {     238648, +1288483336, 6496, 0xFD76 }, "Diag Ver 3.1.1" },
@@ -2288,6 +2291,8 @@ static const struct {
 	{{ "G2TP52\x00\x00" }, false, 0x10, 0xEFEC, 0xEE959C7E, 0xA6DF308D2E6E85D7, 1459955712,      +22528, { 1018210520,          +0, 6496, 0x2179 }, "Memory Card Utility Program" },
 	{{ "G2TP52\x00\x00" }, false, 0x40, 0xEFEC, 0x0C20DB86, 0xA6DF308D2E6E85D7, 1459980288,       -2048, { 1018210520,          +0, 6496, 0x2A86 }, "Memory Card Utility Program" },
 	{{ "G2XJ8P\x00\x00" }, false, 0x78, 0x4354, 0x54945C2F, 0x9D241F84F310A2E0, 1360922624,   +99055616, {    2200740,   +98952028, 6496, 0x3FC1 }, "Sonic Gems Collection" },
+	{{ "G2XP8P\x00\x00" }, false, 0x7B, 0x5143, 0x49522DFA, 0x81E8B693E0E23CAA, 1369686016,   +90292224, {    2202104,      +26120, 6496, 0xA3ED }, "Sonic Gems Collection" },
+	{{ "G2XP8P\x00\x00" }, false, 0x86, 0x434D, 0x6AD50045, 0x135C8B05240BBED7, 1362450432,   +97527808, {    2201600,      +26624, 6496, 0xA3ED }, "Sonic Gems Collection" },
 	{{ "G3EP51\x00\x00" }, true,  0x34, 0x80D0, 0x6F0DFACE, 0x4B8AC78E5081B62E,  459536384, +1000441856, {   87327232,    +2793404, 6496, 0x0649 }, "XGIII: Extreme G Racing" },
 	{{ "G3EP51\x00\x00" }, true,  0x68, 0x80D0, 0x395187D3, 0x4B8AC78E5081B62E,  459601920,  +188680192, {   87327232,    +2793404, 6496, 0x0649 }, "XGIII: Extreme G Racing" },
 	{{ "G4BE08\x10\x00" }, false, 0xD6, 0xAC60, 0xF42C8796, 0x74B4EC020FDC7489, 1391001600,   +68976640, {    3678236,   +67028612, 6496, 0xE6BE }, "Resident Evil 4" },
@@ -2300,6 +2305,8 @@ static const struct {
 	{{ "G9SE8P\x00\x00" }, false, 0xC9, 0x2452, 0x9570B84D, 0x4B02F2707E61E294, 1187868672,  +272109568, {         ~0,          +0,    0, 0xFFFF }, "Sonic Heroes" },
 	{{ "G9SE8P\x00\x00" }, false, 0xD6, 0xEC9A, 0x4F1E87EB, 0x4C0530E96FCF1607, 1285890048,   +91774976, {  575774080,   +73228928, 6496, 0x7CBD }, "Sonic Heroes" },
 	{{ "G9SE8P\x00\x03" }, false, 0xC7, 0x1E76, 0x82D09071, 0x0768710ADFC73862, 1245077504,  +214900736, {  441842048,  +214466732, 6496, 0x7CBD }, "Sonic Heroes" },
+	{{ "G9SJ8P\x00\x00" }, false, 0x1C, 0x984A, 0x031F4578, 0x9083F84BE57F56E1,  278956032, +1181022208, {         ~0,          +0,    0, 0xFFFF }, "Shadow the Hedgehog" },
+	{{ "G9SJ8P\x00\x00" }, false, 0xB5, 0x984A, 0xF9E050D2, 0x9083F84BE57F56E1,  279472128,  +901126144, {         ~0,          +0,    0, 0xFFFF }, "Shadow the Hedgehog" },
 	{{ "G9SJ8P\x00\x00" }, false, 0xB6, 0xC0D7, 0xE291DD98, 0xEF8BF465DC6C831C, 1459310592,     +667648, {  614910892,     +245764, 6496, 0x2336 }, "Sonic Heroes" },
 	{{ "GAAJ08\x00\x00" }, false, 0xE8, 0x59B5, 0xCFF85DC4, 0x8FB84CC1BD034EF2,  431874048, +1028104192, {  431866960, +1028104784, 6496, 0x3F32 }, "Disney's Hide & Sneak" },
 	{{ "GAEE01\x00\x00" }, false, 0x35, 0xFBDD, 0x4766503F, 0x436691A998882797,   29786112, +1430192128, {   29137112, +1430187816, 6496, 0x1129 }, "Animal Forest e+" },
@@ -2363,6 +2370,8 @@ static const struct {
 	{{ "GC6E01\x00\x00" }, false, 0xE5, 0x6BC0, 0x338AEC48, 0xF0545D33E55E53A1,  654622720,  +805355520, {  182785616,  +805353180, 6496, 0x719C }, "Pokémon Colosseum" },
 	{{ "GCCE01\x00\x00" }, false, 0x13, 0xF223, 0xD466236E, 0x89D01E6E0E49A121, 1329932288,  +130045952, {  570366340,      +30392, 6496, 0x6BE6 }, "Final Fantasy Crystal Chronicles: Single Player Upgrade" },
 	{{ "GCREBM\x00\x00" }, false, 0xA7, 0x9EF5, 0x00FFED74, 0x34BF21CA529D0E02,   10774528,  +105123840, {      17736,         +24, 6496, 0x65EB }, "Xeno Crisis" },
+	{{ "GD5JB2\x00\x00" }, true,  0x49, 0x6440, 0x382C043E, 0x10D31372560E0AAA, 1023129600,  +436848640, { 1023122892,          +0, 6496, 0x1CF2 }, "Dragon Drive: D-Masters Shot" },
+	{{ "GD5JB2\x00\x00" }, true,  0x6A, 0x6440, 0xD0EB8A56, 0x10D31372560E0AAA, 1023129600,          +0, { 1023122892,          +0, 6496, 0x1CF2 }, "Dragon Drive: D-Masters Shot" },
 	{{ "GDEE71\x00\x00" }, false, 0x65, 0xC228, 0xC2C80167, 0x616D2EAD3B11D74F, 1358307328,  +101670912, {  914092380,       +7536, 6496, 0x2D5A }, "Baldur's Gate: Dark Alliance" },
 	{{ "GDPJAF\x00\x00" }, false, 0x85, 0x5BBF, 0xEEAD97CB, 0xF5236848D65E4FF3,  913614848,  +546363392, {  542371948,  +546337144, 6496, 0x7780 }, "Mr. Driller: Drill Land" },
 	{{ "GEAE8P\x00\x00" }, false, 0x16, 0x4329, 0x22E6FE4B, 0x776C0A056378855A, 1421514752,   +38463488, { 1206244016,   +36660560, 6496, 0x51AD }, "Skies of Arcadia: Legends Maeson" },
@@ -2509,7 +2518,7 @@ static const struct {
 	{{ "SG4JDA\x00\x00" }, true,  0x52, 0xF019, 0x4BB4830A, 0x3645CAE26589C220, 1272594432,  +187383808, { 1272587604,  +187384140, 6496, 0x015D }, "Naruto: Clash of Ninja 4" },
 	{{ "SG4JDA\x00\x00" }, true,  0x9D, 0xB3B3, 0x424A4760, 0x38394EDF8E58393A, 1261602816,  +198375424, { 1261594344,  +198377400, 6496, 0x015D }, "Naruto: Clash of Ninja 4" },
 	{{ "TESTNA\x00\x00" }, false, 0xD2, 0x0C28, 0x6254FB97, 0xAA2E5EDD0EF81992,   26834944,       -1658, {         ~0,          +0,    0, 0xFFFF }, "Dodger Demo" },
-#define VALID_GCM_COUNT (REDUMP_COUNT + 231)
+#define VALID_GCM_COUNT (REDUMP_COUNT + 237)
 	{{ "101E01\x00\x05" }, true,  0x88, 0xB6FD, 0x4BB518CD, 0x27CFAD706924A030, 1435949056,   +24029184, {         ~0,          +0,    0, 0xFFFF }, "Hontai Kensa Disc DOL-USA" },
 	{{ "101E01\x00\x05" }, true,  0xC6, 0xB6FD, 0x4BB518CD, 0x27CFAD706924A030, 1435949056,   +24029184, {         ~0,          +0,    0, 0xFFFF }, "Hontai Kensa Disc DOL-USA" },
 	{{ "101J01\x00\x03" }, true,  0x67, 0xA361, 0x1A7B7608, 0x6E2DA2E062EF73BA, 1459453952,     +524288, {         ~0,          +0,    0, 0xFFFF }, "Hontai Kensa Disc DOL" },
@@ -2523,6 +2532,8 @@ static const struct {
 	{{ "102P01\x00\x07" }, true,  0x78, 0x44BE, 0xC3103545, 0xD6169C112BBD3349, 1450627072,    +9351168, {  122951084,    +1278164, 6496, 0x19E5 }, "Aging Disc DOL-PAL" },
 	{{ "301E01\x00\x00" }, true,  0x91, 0x2291, 0xBE031BBE, 0x7AB7116BCF31F77C,  206022656, +1253955584, {  140151696, +1252226160, 6496, 0x1086 }, "Nintendo GameCube Service Disc Version 1.0/03" },
 	{{ "327E01\x00\x00" }, false, 0x3A, 0x7406, 0xAF7E5D39, 0x1A5F0EA47A582D7E, 1457711104,    +2267136, { 1457702716,    +2269028, 6496, 0x3591 }, "Memory Card Utility Program" },
+	{{ "D24J01\x00\x00" }, true,  0xB7, 0xBFF3, 0x0DD683CE, 0x414B1A6F96A6694C, 1460045824,      -67584, {  948856488,      -32776, 6496, 0xE8A2 }, "SmaBro DX Event-you Disc" },
+	{{ "D24J01\x00\x00" }, true,  0xED, 0xBFF3, 0x0DD683CE, 0x414B1A6F96A6694C, 1460045824,      -67584, {  948856488,      -32776, 6496, 0xE8A2 }, "SmaBro DX Event-you Disc" },
 	{{ "D47J01\x00\x00" }, true,  0x4E, 0x6310, 0x3F9F3D4B, 0x923519E310698F55, 1284571136,  +175407104, { 1133822460,  +175425176, 6496, 0x08C2 }, "Gekkan Nintendo Tentou Demo 2003.2.1" },
 	{{ "D4BU01\x00\x00" }, false, 0x62, 0x21A2, 0x1D369CDA, 0x172A5451FAED68F4,  856571904,  +603406336, {  854933060,  +603407196, 8096, 0xBD28 }, "Resident Evil 4" },
 	{{ "D65E01\x00\x00" }, true,  0x50, 0x3C38, 0x052A45B7, 0x88BC5142ECB15EEA,  994826240,  +465152000, {  240898724,  +464819196, 6496, 0xCDB7 }, "Interactive Multi-Game Demo Disc Version 28" },
@@ -2581,7 +2592,7 @@ static const struct {
 	{{ "RELSAB\x00\x00" }, false, 0xAC, 0xBA9E, 0x1D74AD4A, 0x1A5F0EA47A582D7E, 1455841280,    +4136960, {         ~0,          +0,    0, 0xFFFF }, "Memory Card Utility Program" },
 	{{ "RELSAB\x00\x00" }, true,  0x44, 0xFCCE, 0x146E4A5A, 0x1E9563341CFB48F4, 1459947520,      +30720, { 1193673280,          +0, 6496, 0x8F7A }, "Summoner: The Prophecy" },
 	{{ "RELSAB\x00\x00" }, true,  0xD6, 0xD9CE, 0x16D7BCCE, 0xB64ADF7A4E8423B8, 1459978240,          +0, { 1193214528,          +0, 6496, 0x1458 }, "Summoner: The Prophecy" },
-#define TOTAL_GCM_COUNT (VALID_GCM_COUNT + 71)
+#define TOTAL_GCM_COUNT (VALID_GCM_COUNT + 73)
 };
 
 uint8_t fletcher8(const void *buffer, size_t size)

@@ -1,4 +1,5 @@
 #include <argz.h>
+#include <langinfo.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -98,7 +99,7 @@ char* config_file_read(char* filename) {
 	file_handle *configFile = (file_handle*)calloc(1, sizeof(file_handle));
 	concat_path(configFile->name, devices[DEVICE_CONFIG]->initial->name, filename);
 	print_debug("config_file_read: looking for %s\n", configFile->name);
-	if(!devices[DEVICE_CONFIG]->statFile(configFile)) {
+	if(!devices[DEVICE_CONFIG]->statFile(configFile) && configFile->size) {
 		readBuffer = (char*)calloc(1, configFile->size + 1);
 		if (readBuffer) {
 			print_debug("config_file_read: reading %i byte file\n", configFile->size);
@@ -148,6 +149,7 @@ int config_update_global(bool checkConfigDevice) {
 	fprintf(fp, "SD/IDE Speed=%s\r\n", swissSettings.exiSpeed ? "32MHz":"16MHz");
 	fprintf(fp, "System Boot Mode=%s\r\n", swissSettings.sramBoot ? "Production":"Default");
 	fprintf(fp, "System Sound=%s\r\n", swissSettings.sramStereo ? "Stereo":"Mono");
+	fprintf(fp, "System Video=%s\r\n", sramVideoStr[swissSettings.sramVideo]);
 	fprintf(fp, "Screen Position=%+hi\r\n", swissSettings.sramHOffset);
 	fprintf(fp, "System Language=%s\r\n", sramLanguageStr[swissSettings.sramLanguage]);
 	fprintf(fp, "Swiss Video Mode=%s\r\n", uiVModeStr[swissSettings.uiVMode]);
@@ -563,7 +565,6 @@ void config_parse_legacy(char *configData, void (*progress_indicator)(char*, int
 				else if(!strcmp("AVECompat", name)) {
 					for(int i = 0; i < AVE_COMPAT_MAX; i++) {
 						if(!strcmp(aveCompatStr[i], value)) {
-							setenv("AVE", aveCompatStr[i], 1);
 							swissSettings.aveCompat = i;
 							break;
 						}
@@ -813,6 +814,14 @@ void config_parse_global(char *configData) {
 				else if(!strcmp("System Sound", name)) {
 					swissSettings.sramStereo = !strcmp("Stereo", value) ? SYS_SOUND_STEREO : SYS_SOUND_MONO;
 				}
+				else if(!strcmp("System Video", name) && swissSettings.aveCompat != AVE_RVL_COMPAT) {
+					for(int i = 0; i < 3; i++) {
+						if(!strcmp(sramVideoStr[i], value)) {
+							swissSettings.sramVideo = i;
+							break;
+						}
+					}
+				}
 				else if(!strcmp("Screen Position", name)) {
 					swissSettings.sramHOffset = atoi(value);
 				}
@@ -917,7 +926,6 @@ void config_parse_global(char *configData) {
 				else if(!strcmp("AVECompat", name)) {
 					for(int i = 0; i < AVE_COMPAT_MAX; i++) {
 						if(!strcmp(aveCompatStr[i], value)) {
-							setenv("AVE", aveCompatStr[i], 1);
 							swissSettings.aveCompat = i;
 							break;
 						}
@@ -1291,6 +1299,8 @@ int config_init(void (*progress_indicator)(char*, int, int)) {
 	return res;
 }
 
+static char *sramLanguageEnvStr[] = {"en_GB", "de_DE", "fr_FR", "es_ES", "it_IT", "nl_NL", "ja_JP", "en_US"};
+
 void config_init_environ() {
 	char *value;
 	value = getenv("AVE");
@@ -1304,7 +1314,19 @@ void config_init_environ() {
 			}
 		}
 	}
-	
+	value = getenv("LANG");
+	if(value == NULL || *value == '\0') {
+		sprintf(txtbuffer, "LANG=%s.%s", sramLanguageEnvStr[swissSettings.sramLanguage], nl_langinfo(CODESET));
+		putenv(txtbuffer);
+	} else {
+		char *dot = strchrnul(value, '.');
+		for(int i = 0; i < SRAM_LANGUAGE_MAX; i++) {
+			if(!strncmp(sramLanguageEnvStr[i], value, dot - value)) {
+				swissSettings.sramLanguage = i;
+				break;
+			}
+		}
+	}
 	value = getenv("CUBEBOOT");
 	if(value != NULL) {
 		swissSettings.cubebootInvoked = !!atoi(value);
@@ -1312,6 +1334,30 @@ void config_init_environ() {
 	value = getenv("FLIPPYDRIVE");
 	if(value != NULL) {
 		swissSettings.hasFlippyDrive = !!atoi(value);
+	}
+	value = getenv("USBGECKO_CHANNEL");
+	if(value != NULL) {
+		swissSettings.enableUSBGecko = USBGECKO_MEMCARD_SLOT_A + atoi(value);
+	}
+	value = getenv("USBGECKO_SAFE");
+	if(value != NULL) {
+		swissSettings.waitForUSBGecko = !!atoi(value);
+	}
+}
+
+void config_update_environ() {
+	setenv("AVE", aveCompatStr[swissSettings.aveCompat], 1);
+	sprintf(txtbuffer, "LANG=%s.%s", sramLanguageEnvStr[swissSettings.sramLanguage], nl_langinfo(CODESET));
+	putenv(txtbuffer);
+	
+	if(swissSettings.enableUSBGecko) {
+		sprintf(txtbuffer, "USBGECKO_CHANNEL=%i", swissSettings.enableUSBGecko - USBGECKO_MEMCARD_SLOT_A);
+		putenv(txtbuffer);
+		sprintf(txtbuffer, "USBGECKO_SAFE=%i", swissSettings.waitForUSBGecko);
+		putenv(txtbuffer);
+	} else {
+		unsetenv("USBGECKO_CHANNEL");
+		unsetenv("USBGECKO_SAFE");
 	}
 }
 
