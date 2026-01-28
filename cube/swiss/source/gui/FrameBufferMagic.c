@@ -92,7 +92,7 @@ static char fbTextBuffer[256];
 // Video threading vars
 #define VIDEO_STACK_SIZE (64*1024)
 #define VIDEO_PRIORITY LWP_PRIO_HIGHEST
-static char  video_thread_stack[VIDEO_STACK_SIZE];
+static char  video_thread_stack[VIDEO_STACK_SIZE] ATTRIBUTE_ALIGN (8);
 static lwp_t video_thread = LWP_THREAD_NULL;
 static mutex_t _videomutex = LWP_MUTEX_NULL;
 
@@ -1564,41 +1564,31 @@ uiDrawObj_t* DrawMenuButtons(int selection)
 }
 
 void DrawUpdateProgressBar(uiDrawObj_t *evt, int percent) {
-	LWP_MutexLock(_videomutex);
 	drawProgressEvent_t *data = (drawProgressEvent_t*)evt->data;
 	data->percent = percent;
-	LWP_MutexUnlock(_videomutex);
 }
 
 void DrawUpdateProgressBarDetail(uiDrawObj_t *evt, int percent, int speed, int timestart, int timeremain) {
-	LWP_MutexLock(_videomutex);
 	drawProgressEvent_t *data = (drawProgressEvent_t*)evt->data;
 	data->percent = percent;
 	data->speed = speed;
 	data->timestart = timestart;
 	data->timeremain = timeremain;
-	LWP_MutexUnlock(_videomutex);
 }
 
 void DrawUpdateProgressLoading(uiDrawObj_t *evt, int increment) {
-	LWP_MutexLock(_videomutex);
 	drawProgressEvent_t *data = (drawProgressEvent_t*)evt->data;
 	data->speed += increment;
-	LWP_MutexUnlock(_videomutex);
 }
 
 void DrawUpdateMenuButtons(int selection) {
-	LWP_MutexLock(_videomutex);
 	drawMenuButtonsEvent_t *data = (drawMenuButtonsEvent_t*)buttonPanel->data;
 	data->selection = selection;
-	LWP_MutexUnlock(_videomutex);
 }
 
 void DrawUpdateFileBrowserButton(uiDrawObj_t *evt, int mode) {
-	LWP_MutexLock(_videomutex);
 	drawFileBrowserButtonEvent_t *data = (drawFileBrowserButtonEvent_t*)evt->data;
 	data->mode = mode;
-	LWP_MutexUnlock(_videomutex);
 }
 
 // Internal

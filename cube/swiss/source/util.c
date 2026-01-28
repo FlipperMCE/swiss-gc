@@ -270,6 +270,17 @@ bool update_recent() {
 	return true;
 }
 
+bool is_recent_entry(char *entry) {
+	if(swissSettings.recentListLevel > 0) {
+		for(int i = 0; i < RECENT_MAX; i++) {
+			if(!strcmp(swissSettings.recent[i], entry)) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 int find_existing_entry(char *entry, bool load) {
 	// get the device handler for it
 	DEVICEHANDLER_INTERFACE *entryDevice = getDeviceFromPath(entry);
@@ -368,14 +379,14 @@ int formatBytes(char *string, off_t count, blksize_t blocksize, bool metric)
 		blkcnt_t blocks = (count + blocksize - 1) / blocksize;
 
 		for (int i = 0; units[i].unit[metric]; i++)
-			if (count >= units[i].value[metric])
+			if (count >= units[i].value[metric] - units[i + 1].value[metric] / 2)
 				return sprintf(string, "%.3g %s (%jd blocks)", count / units[i].value[metric], units[i].unit[metric], (intmax_t)blocks);
 
 		return sprintf(string, "%jd bytes (%jd blocks)", (intmax_t)count, (intmax_t)blocks);
 	}
 
 	for (int i = 0; units[i].unit[metric]; i++)
-		if (count >= units[i].value[metric])
+		if (count >= units[i].value[metric] - units[i + 1].value[metric] / 2)
 			return sprintf(string, "%.3g %s", count / units[i].value[metric], units[i].unit[metric]);
 
 	return sprintf(string, "%jd bytes", (intmax_t)count);

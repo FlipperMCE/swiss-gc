@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2020-2025, Extrems <extrems@extremscorner.org>
+ * Copyright (c) 2020-2026, Extrems <extrems@extremscorner.org>
  * 
  * This file is part of Swiss.
  * 
@@ -392,9 +392,11 @@ static const struct {
 	{{ "DBSJ8P\x00\x00" }, false, 0xD3, 0x68BC, 0xE90CBB5B, 0xCBDF8D7A0E60FF21,  102094848, +1357883392, {   72510572, +1357883412, 6496, 0x2B92 }, "Beach Spikers: Virtua Beach Volleyball" },
 	{{ "DBZJ08\x00\x00" }, false, 0xC4, 0xD256, 0xC089501E, 0x7B2D4B3C56410254,  801167360,  +658810880, {  765615848,      +26144, 6496, 0x37C0 }, "Biohazard Zero: Trial Edition" },
 	{{ "DCEP41\x00\x00" }, false, 0xD2, 0x935C, 0xCE53A492, 0x7D729C0442EB90CD,   51871744, +1408106496, {    3248260,      +28540, 6496, 0xE72D }, "Tom Clancy's Splinter Cell" },
+	{{ "DDPJ01\x00\x00" }, false, 0x36, 0x5AED, 0xFBE5427E, 0x82B62B61CB4EB33B,  917639168,  +542339072, {    2108136,       +2424, 6496, 0x4F0F }, "Mr. Driller: Drill Land Event-you Disc" },
 	{{ "DEOJ08\x00\x00" }, false, 0x8C, 0xB56A, 0xFFF31CF8, 0x7D5991E98E141D5D,  418557952, +1041420288, {   36950600,       +9172, 6496, 0x2F3B }, "Capcom vs. SNK 2 EO" },
 	{{ "DEZP8P\x00\x00" }, false, 0x36, 0x3FB2, 0x097DA801, 0xDC83BF86B6AB678A,  387362816, +1072615424, {  357034728, +1072617304, 8096, 0x9B40 }, "Billy Hatcher and the Giant Egg" },
 	{{ "DFIJ13\x00\x00" }, false, 0x32, 0x46CD, 0x7BDC7837, 0x564B21524D7D6551, 1311358976,  +148619264, { 1311351652,     +110200, 6496, 0x6371 }, "2002 FIFA World Cup" },
+	{{ "DFSJ13\x00\x00" }, false, 0x67, 0x9E10, 0x1B8A38DF, 0xF4B5773C928E207A, 1173227520,  +286750720, { 1170843900,      +59128, 6496, 0xF9A7 }, "FIFA 2002: Road to FIFA World Cup" },
 	{{ "DGAJB2\x00\x00" }, true,  0x97, 0x5F59, 0x05458FAD, 0xEC3C56AA5A9CDE26,  716726272,  +743251968, {  716719748,  +743251996, 6496, 0x81D4 }, "Kidou Senshi Gundam: Senshi-tachi no Kiseki" },
 	{{ "DKNJ01\x00\x00" }, false, 0x50, 0xBAC0, 0x915156C6, 0xB5E976D396698FBF,  894486528,  +565491712, {  885347632,    +1125388, 6496, 0x53F0 }, "Kinnikuman Nisei: Shinsedai Choujin vs. Densetsu Choujin Event-you Disc" },
 	{{ "DLSE64\x00\x00" }, true,  0x31, 0x9B82, 0x1621D87A, 0x0EF434C4F59AA81D, 1007726592,  +452251648, {  369815476,  +451573484, 6496, 0xCC14 }, "Star Wars: Rogue Squadron III: Rebel Strike" },
@@ -1481,7 +1483,7 @@ static const struct {
 	{{ "GNHE5d\x00\x00" }, false, 0x2C, 0x3E90, 0x0E8BB8D0, 0xCB5D5096FE9FD4E8,    2045952, +1457932288, {      94248,       +4056, 6496, 0xB20B }, "Advance Game Port" },
 	{{ "GNHE5d\x00\x00" }, false, 0x2C, 0xCCBB, 0x11A23CFC, 0x9D96DC5BD2CAB822,    3047424, +1456930816, {      94248,       +4056, 6496, 0x4C9F }, "Action Replay for GameCube" },
 	{{ "GNHE5d\x00\x00" }, false, 0x2D, 0xCCBB, 0x20410C84, 0xFD841AF194632025,     968704, +1459009536, {      94248,       +4056, 6496, 0xB8A4 }, "Action Replay Ultimate Codes for Use with Wario World" },
-	{{ "GNHE5d\x00\x00" }, false, 0x2E, 0xCCBB, 0x2E098A57, 0xED61A06E328BCADC,     929792, +1459048448, {      94248,       +4056, 6496, 0x71DF }, "CD avec les Codes Exclusifs et inédits pour le Jeu Metroid Prime" },
+	{{ "GNHE5d\x00\x00" }, false, 0x2E, 0xCCBB, 0x2E098A57, 0xED61A06E328BCADC,     929792, +1459048448, {      94248,       +4056, 6496, 0x71DF }, "CD avec les codes exclusifs et inédits pour le jeu Metroid Prime" },
 	{{ "GNHE5d\x00\x00" }, false, 0x30, 0xCCBB, 0x534963A9, 0x4C74370EF6241C47,     630784, +1459347456, {      94248,       +4056, 6496, 0x1F49 }, "SD Media Launcher for GameCube / Wii" },
 	{{ "GNHE5d\x00\x00" }, false, 0x32, 0xCCBB, 0xF788D099, 0x20C822BDDEB80BC7,    1245184, +1458733056, {      94248,       +4056, 6496, 0x08F2 }, "Ultimate Codes for Use with Tom Clancy's Splinter Cell" },
 	{{ "GNHE5d\x00\x00" }, false, 0x33, 0xCCBB, 0xC7E200F3, 0x2B7A18F78F0474B8,    2117632, +1457860608, {      94248,       +4056, 6496, 0x3A76 }, "Action Replay Ultimate Cheats für Enter the Matrix" },
@@ -2280,7 +2282,7 @@ static const struct {
 	{{ "UGPP01\x00\x01" }, false, 0x2A, 0x6D4F, 0x5ECD9681, 0x4E9244DEFB94F10C,    5079040, +1454899200, {    2317764,       +8764, 8096, 0x8972 }, "Game Boy Player Start-Up Disc" },
 	{{ "UGPP01\x00\x02" }, false, 0x3A, 0xCA50, 0x1E26380C, 0x483B4CE794041533,    5079040, +1454899200, {    2317764,       +8764, 8096, 0x8972 }, "Game Boy Player Start-Up Disc" },
 	{{ "XXXXXX\x00\x01" }, false, 0x83, 0x7056, 0x5995AC59, 0x5CBC3D9F00D75112, 1287913472,  +172064768, {         ~0,          +0,    0, 0xFFFF }, "LEGO Super Soccer Adventure" },
-#define REDUMP_COUNT (2017)
+#define REDUMP_COUNT (2019)
 	{{"00\0E01\x00\x00" }, false, 0x8B, 0x42A2, 0x499CF1AB, 0xC1BAC83BFBED3EDB,   31170560, +1428807680, {    7795364,      +23900, 6496, 0xBBEA }, "Nintendo Developer Demo" },
 	{{"00\0E01\x00\x00" }, false, 0xD9, 0x21CF, 0xBF114CB3, 0xC1BAC83BFBED3EDB,   31170560, +1428807680, {    7795364,      +23900, 6496, 0xBBEA }, "Nintendo Developer Demo" },
 	{{ "060J01\x00\x00" }, true,  0x7E, 0x27AC, 0x94C088DF, 0x55221BF909AB54CC,  171485184, +1288493056, {     238648, +1288483336, 6496, 0xFD76 }, "Diag Ver 3.1.1" },
@@ -2540,6 +2542,8 @@ static const struct {
 	{{ "D67E01\x00\x00" }, true,  0xD7, 0xDAEA, 0xF2675688, 0x88BC5142ECB15EEA, 1380059136,   +79919104, {  430344808,   +79387704, 6496, 0xCA22 }, "Interactive Multi-Game Demo Disc Version 26" },
 	{{ "DFIJ13\x00\x00" }, false, 0x73, 0x46CD, 0x7BDC7837, 0x564B21524D7D6551, 1459980288,       -2048, { 1311461884,         -32, 6496, 0x6371 }, "2002 FIFA World Cup" },
 	{{ "DFIJ13\x00\x00" }, false, 0xD6, 0x46CD, 0x7BDC7837, 0x564B21524D7D6551, 1459980288,       -2048, { 1311461884,         -32, 6496, 0x6371 }, "2002 FIFA World Cup" },
+	{{ "DFSJ13\x00\x00" }, false, 0x2C, 0x9E10, 0x1B8A38DF, 0xF4B5773C928E207A, 1459980288,       -2048, { 1170903060,         -32, 6496, 0xF9A7 }, "FIFA 2002: Road to FIFA World Cup" },
+	{{ "DFSJ13\x00\x00" }, false, 0x42, 0x9E10, 0x1B8A38DF, 0xF4B5773C928E207A, 1459980288,       -2048, { 1170903060,         -32, 6496, 0xF9A7 }, "FIFA 2002: Road to FIFA World Cup" },
 	{{ "DMTJ18\x00\x00" }, false, 0x0A, 0xBD99, 0x9F17E51E, 0x6D3DED5E273755FA, 1460045824,      -67584, {    3801096,          -8, 6496, 0x4C34 }, "Disney's Magical Park" },
 	{{ "DMTJ18\x00\x00" }, false, 0xBA, 0xBD99, 0x9F17E51E, 0x6D3DED5E273755FA, 1460045824,      -67584, {    3801096,          -8, 6496, 0x4C34 }, "Disney's Magical Park" },
 	{{ "E24J01\x00\x00" }, true,  0xEB, 0xFA93, 0x14683962, 0x1D9621036F75A6A5, 1406525440,   +53452800, {   12125000,   +40723288, 6496, 0x5210 }, "Gekkan Nintendo Tentou Demo 2005.10.1" },
@@ -2592,7 +2596,7 @@ static const struct {
 	{{ "RELSAB\x00\x00" }, false, 0xAC, 0xBA9E, 0x1D74AD4A, 0x1A5F0EA47A582D7E, 1455841280,    +4136960, {         ~0,          +0,    0, 0xFFFF }, "Memory Card Utility Program" },
 	{{ "RELSAB\x00\x00" }, true,  0x44, 0xFCCE, 0x146E4A5A, 0x1E9563341CFB48F4, 1459947520,      +30720, { 1193673280,          +0, 6496, 0x8F7A }, "Summoner: The Prophecy" },
 	{{ "RELSAB\x00\x00" }, true,  0xD6, 0xD9CE, 0x16D7BCCE, 0xB64ADF7A4E8423B8, 1459978240,          +0, { 1193214528,          +0, 6496, 0x1458 }, "Summoner: The Prophecy" },
-#define TOTAL_GCM_COUNT (VALID_GCM_COUNT + 73)
+#define TOTAL_GCM_COUNT (VALID_GCM_COUNT + 75)
 };
 
 uint8_t fletcher8(const void *buffer, size_t size)
