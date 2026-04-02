@@ -100,16 +100,12 @@ void get_fst_details(char *FST, char *searchFileName, u32 *file_offset, u32 *fil
 }
 
 //Lets parse the entire game FST in search for the banner
-void get_gcm_banner(file_handle *file, u32 *file_offset, u32 *file_size) {
-	DiskHeader *diskHeader = get_gcm_header(file);
-	if(!diskHeader) return;
-	
+void get_gcm_banner(file_handle *file, DiskHeader *diskHeader, u32 *file_offset, u32 *file_size) {
 	char *FST = get_fst(file, diskHeader->FSTOffset, diskHeader->FSTSize);
 	if(!FST) return;
 	
 	get_fst_details(FST, "opening.bnr", file_offset, file_size);
 	free(FST);
-	free(diskHeader);
 }
 
 // Add a file to our current filesToPatch based on fileName
@@ -448,7 +444,7 @@ int parse_tgc(file_handle *file, ExecutableFile *filesToPatch, u32 tgc_base, cha
 	filesToPatch[numFiles].type = PATCH_DOL;
 	filesToPatch[numFiles].fstOffset = tgc_base+tgcHeader.fstStart;
 	filesToPatch[numFiles].fstSize = tgcHeader.fstLength;
-	filesToPatch[numFiles].tgcBase = tgc_base+file->fileBase;
+	filesToPatch[numFiles].tgcBase = tgc_base;
 	filesToPatch[numFiles].tgcFileStartArea = tgcHeader.userStart;
 	filesToPatch[numFiles].tgcFakeOffset = tgcHeader.gcmUserStart;
 	sprintf(filesToPatch[numFiles].name, "%s/%s", tgcname, "default.dol");
@@ -486,7 +482,7 @@ int parse_tgc(file_handle *file, ExecutableFile *filesToPatch, u32 tgc_base, cha
 				filesToPatch[numFiles].type = PATCH_DOL;
 				filesToPatch[numFiles].fstOffset = tgc_base+tgcHeader.fstStart;
 				filesToPatch[numFiles].fstSize = tgcHeader.fstLength;
-				filesToPatch[numFiles].tgcBase = tgc_base+file->fileBase;
+				filesToPatch[numFiles].tgcBase = tgc_base;
 				filesToPatch[numFiles].tgcFileStartArea = tgcHeader.userStart;
 				filesToPatch[numFiles].tgcFakeOffset = tgcHeader.gcmUserStart;
 				memcpy(&filesToPatch[numFiles].name,&filename[0],64); 
@@ -502,7 +498,7 @@ int parse_tgc(file_handle *file, ExecutableFile *filesToPatch, u32 tgc_base, cha
 				filesToPatch[numFiles].type = PATCH_ELF;
 				filesToPatch[numFiles].fstOffset = tgc_base+tgcHeader.fstStart;
 				filesToPatch[numFiles].fstSize = tgcHeader.fstLength;
-				filesToPatch[numFiles].tgcBase = tgc_base+file->fileBase;
+				filesToPatch[numFiles].tgcBase = tgc_base;
 				filesToPatch[numFiles].tgcFileStartArea = tgcHeader.userStart;
 				filesToPatch[numFiles].tgcFakeOffset = tgcHeader.gcmUserStart;
 				memcpy(&filesToPatch[numFiles].name,&filename[0],64); 

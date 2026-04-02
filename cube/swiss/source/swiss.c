@@ -1057,7 +1057,14 @@ void load_app(ExecutableFile *fileToPatch)
 				message = "Failed to read FST!";
 				goto fail_early;
 			}
-			adjust_tgc_fst((void*)fstAddr, fileToPatch->tgcBase, fileToPatch->tgcFileStartArea, fileToPatch->tgcFakeOffset);
+			if(devices[DEVICE_CUR] == &__device_dvd) {
+				adjust_tgc_fst((void*)fstAddr, fileToPatch->file->fileBase + fileToPatch->tgcBase, fileToPatch->tgcFileStartArea, fileToPatch->tgcFakeOffset);
+				*(vu32*)(VAR_AREA+0x30F4) = fileToPatch->file->fileBase + fileToPatch->tgcBase;
+			}
+			else {
+				adjust_tgc_fst((void*)fstAddr, fileToPatch->tgcBase, fileToPatch->tgcFileStartArea, fileToPatch->tgcFakeOffset);
+				*(vu32*)(VAR_AREA+0x30F4) = fileToPatch->tgcBase;
+			}
 			
 			// Copy bi2.bin (Disk Header Information) to just under the FST
 			u32 bi2Addr = (fstAddr-0x2000)&~31;
@@ -1072,7 +1079,6 @@ void load_app(ExecutableFile *fileToPatch)
 			*(vu32*)(VAR_AREA+0x0038) = fstAddr;								// FST Location in ram
 			*(vu32*)(VAR_AREA+0x003C) = fileToPatch->fstSize;					// FST Max Length
 			*(vu32*)(VAR_AREA+0x00F4) = bi2Addr;								// bi2.bin location
-			*(vu32*)(VAR_AREA+0x30F4) = fileToPatch->tgcBase;
 		}
 		else {
 			// Read FST to top of Main Memory (round to 32 byte boundary)
@@ -2232,11 +2238,12 @@ void load_game() {
 	}
 
 	if(devices[DEVICE_CUR]->emulated() & EMU_ETHERNET) {
-		s32 exi_channel, exi_device, exi_interrupt;
+		s32 exi_channel, exi_device, exi_interrupt, exi_speed;
 		if(getExiDeviceByLocation(bba_location, &exi_channel, &exi_device) &&
-			getExiInterruptByLocation(bba_location, &exi_interrupt)) {
+			getExiInterruptByLocation(bba_location, &exi_interrupt) &&
+			getExiSpeedByLocation(bba_location, &exi_speed)) {
 			*(vu8*)VAR_EXI_SLOT = (*(vu8*)VAR_EXI_SLOT & 0x0F) | (((exi_device << 6) | (exi_channel << 4)) & 0xF0);
-			*(vu8*)VAR_EXI2_CPR = (exi_interrupt << 6) | ((1 << exi_device) << 3) | (exi_device == EXI_DEVICE_0 ? EXI_SPEED32MHZ : EXI_SPEED16MHZ);
+			*(vu8*)VAR_EXI2_CPR = (exi_interrupt << 6) | ((1 << exi_device) << 3) | exi_speed;
 			*(vu32**)VAR_EXI2_REGS = ((vu32(*)[5])0xCC006800)[exi_channel];
 		}
 	}
@@ -2721,7 +2728,7 @@ void select_device(int type)
 			DrawAddChild(deviceSelectBox, exiOptionsLabel);
 			if(inAdvanced) {
 				// Draw speed selection if advanced menu is showing.
-				uiDrawObj_t *exiSpeedLabel = DrawStyledLabel(getVideoMode()->fbWidth-161, 392, swissSettings.exiSpeed ? "Speed: 32 MHz":"Speed: 16 MHz", 0.65f, ALIGN_LEFT, defaultColor);
+				uiDrawObj_t *exiSpeedLabel = DrawStyledLabel(getVideoMode()->fbWidth-161, 392, swissSettings.exiSpeed ? "Speed: 27 MHz":"Speed: 13.5 MHz", 0.65f, ALIGN_LEFT, defaultColor);
 				DrawAddChild(deviceSelectBox, exiSpeedLabel);
 			}
 		}
@@ -2863,14 +2870,23 @@ void menu_loop()
 			DrawUpdateMenuButtons((curMenuLocation == ON_OPTIONS) ? curMenuSelection : MENU_NOSELECT);
 		}
 		if(devices[DEVICE_CUR] != NULL && curMenuLocation==ON_FILLIST) {
-			if(swissSettings.fileBrowserType == BROWSER_CAROUSEL) {
-				filePanel = renderFileCarousel(getSortedDirEntries(), getSortedDirEntryCount(), filePanel);
+			int fileBrowserType = swissSettings.fileBrowserType;
+			if(!fnmatch("*/apps", curDir.name, FNM_PATHNAME | FNM_CASEFOLD | FNM_LEADING_DIR)) {
+				fileBrowserType = swissSettings.appsBrowserType;
 			}
-			else if(swissSettings.fileBrowserType == BROWSER_FULLWIDTH) {
-				filePanel = renderFileFullwidth(getSortedDirEntries(), getSortedDirEntryCount(), filePanel);
+			else if(!fnmatch("*/games", curDir.name, FNM_PATHNAME | FNM_CASEFOLD | FNM_LEADING_DIR)) {
+				fileBrowserType = swissSettings.gameBrowserType;
 			}
-			else {
-				filePanel = renderFileBrowser(getSortedDirEntries(), getSortedDirEntryCount(), filePanel);
+			switch(fileBrowserType) {
+				default:
+					filePanel = renderFileBrowser(getSortedDirEntries(), getSortedDirEntryCount(), filePanel);
+					break;
+				case BROWSER_CAROUSEL:
+					filePanel = renderFileCarousel(getSortedDirEntries(), getSortedDirEntryCount(), filePanel);
+					break;
+				case BROWSER_FULLWIDTH:
+					filePanel = renderFileFullwidth(getSortedDirEntries(), getSortedDirEntryCount(), filePanel);
+					break;
 			}
 			while(padsButtonsHeld() & (PAD_BUTTON_B | PAD_BUTTON_A | PAD_BUTTON_RIGHT | PAD_BUTTON_LEFT | PAD_BUTTON_START)) {
 				VIDEO_WaitVSync (); 

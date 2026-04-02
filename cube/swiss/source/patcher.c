@@ -1767,6 +1767,13 @@ int Patch_Hypervisor(u32 *data, u32 length, int dataType)
 		{ 24, 7, 5, 3, 2, 3, NULL, 0, "__DVDDequeueWaitingQueue" },
 		{ 26, 7, 5, 3, 2, 5, NULL, 0, "__DVDDequeueWaitingQueue" }	// SN Systems ProDG
 	};
+	FuncPattern __fstLoadSigs[5] = {
+		{ 92, 29, 7, 14, 8,  4, NULL, 0, "__fstLoadD" },
+		{ 98, 29, 7, 14, 8, 10, NULL, 0, "__fstLoadD" },
+		{ 84, 32, 9, 13, 1,  2, NULL, 0, "__fstLoad" },
+		{ 90, 32, 9, 13, 1,  8, NULL, 0, "__fstLoad" },
+		{ 89, 37, 7, 13, 0,  8, NULL, 0, "__fstLoad" }	// SN Systems ProDG
+	};
 	FuncPattern VISetRegsSigs[3] = {
 		{ 54, 21, 6, 3, 3, 12, NULL, 0, "VISetRegsD" },
 		{ 58, 21, 7, 3, 3, 12, NULL, 0, "VISetRegsD" },
@@ -4408,9 +4415,11 @@ int Patch_Hypervisor(u32 *data, u32 length, int dataType)
 			if (compare_pattern(&fp, &DVDInitSigs[j])) {
 				switch (j) {
 					case 0:
-						if (findx_pattern(data, dataType, i + 13, length, &__DVDClearWaitingQueueSigs[0]) &&
-							findx_pattern(data, dataType, i + 23, length, &__OSSetInterruptHandlerSigs[0]) &&
-							findx_pattern(data, dataType, i + 25, length, &__OSUnmaskInterruptsSigs[0]))
+						if (findx_pattern (data, dataType, i + 13, length, &__DVDClearWaitingQueueSigs[0]) &&
+							findx_pattern (data, dataType, i + 23, length, &__OSSetInterruptHandlerSigs[0]) &&
+							findx_pattern (data, dataType, i + 25, length, &__OSUnmaskInterruptsSigs[0]) &&
+							findx_patterns(data, dataType, i + 45, length, &__fstLoadSigs[0],
+							                                               &__fstLoadSigs[1], NULL))
 							DVDInitSigs[j].offsetFoundAt = i;
 						break;
 					case 1:
@@ -4418,43 +4427,51 @@ int Patch_Hypervisor(u32 *data, u32 length, int dataType)
 							findx_patterns(data, dataType, i + 21, length, &__OSSetInterruptHandlerSigs[0],
 							                                               &__OSSetInterruptHandlerSigs[1], NULL) &&
 							findx_patterns(data, dataType, i + 23, length, &__OSUnmaskInterruptsSigs[0],
-							                                               &__OSUnmaskInterruptsSigs[1], NULL))
+							                                               &__OSUnmaskInterruptsSigs[1], NULL) &&
+							findx_pattern (data, dataType, i + 41, length, &__fstLoadSigs[1]))
 							DVDInitSigs[j].offsetFoundAt = i;
 						break;
 					case 2:
 						if (findx_pattern(data, dataType, i + 11, length, &__DVDClearWaitingQueueSigs[0]) &&
 							findx_pattern(data, dataType, i + 23, length, &__OSSetInterruptHandlerSigs[0]) &&
-							findx_pattern(data, dataType, i + 25, length, &__OSUnmaskInterruptsSigs[0]))
+							findx_pattern(data, dataType, i + 25, length, &__OSUnmaskInterruptsSigs[0]) &&
+							findx_pattern(data, dataType, i + 43, length, &__fstLoadSigs[1]))
 							DVDInitSigs[j].offsetFoundAt = i;
 						break;
 					case 3:
 						if (findx_pattern(data, dataType, i + 13, length, &__DVDClearWaitingQueueSigs[1]) &&
 							findx_pattern(data, dataType, i + 20, length, &__OSSetInterruptHandlerSigs[1]) &&
-							findx_pattern(data, dataType, i + 22, length, &__OSUnmaskInterruptsSigs[1]))
+							findx_pattern(data, dataType, i + 22, length, &__OSUnmaskInterruptsSigs[1]) &&
+							findx_pattern(data, dataType, i + 42, length, &__fstLoadSigs[3]))
 							DVDInitSigs[j].offsetFoundAt = i;
 						break;
 					case 4:
-						if (findx_pattern(data, dataType, i + 14, length, &__DVDClearWaitingQueueSigs[1]) &&
-							findx_pattern(data, dataType, i + 22, length, &__OSSetInterruptHandlerSigs[1]) &&
-							findx_pattern(data, dataType, i + 24, length, &__OSUnmaskInterruptsSigs[1]))
+						if (findx_pattern (data, dataType, i + 14, length, &__DVDClearWaitingQueueSigs[1]) &&
+							findx_pattern (data, dataType, i + 22, length, &__OSSetInterruptHandlerSigs[1]) &&
+							findx_pattern (data, dataType, i + 24, length, &__OSUnmaskInterruptsSigs[1]) &&
+							findx_patterns(data, dataType, i + 44, length, &__fstLoadSigs[2],
+							                                               &__fstLoadSigs[3], NULL))
 							DVDInitSigs[j].offsetFoundAt = i;
 						break;
 					case 5:
 						if (findx_pattern(data, dataType, i + 12, length, &__DVDClearWaitingQueueSigs[1]) &&
 							findx_pattern(data, dataType, i + 20, length, &__OSSetInterruptHandlerSigs[1]) &&
-							findx_pattern(data, dataType, i + 22, length, &__OSUnmaskInterruptsSigs[1]))
+							findx_pattern(data, dataType, i + 22, length, &__OSUnmaskInterruptsSigs[1]) &&
+							findx_pattern(data, dataType, i + 40, length, &__fstLoadSigs[3]))
 							DVDInitSigs[j].offsetFoundAt = i;
 						break;
 					case 6:
 						if (findx_pattern(data, dataType, i + 11, length, &__DVDClearWaitingQueueSigs[2]) &&
 							findx_pattern(data, dataType, i + 19, length, &__OSSetInterruptHandlerSigs[2]) &&
-							findx_pattern(data, dataType, i + 21, length, &__OSUnmaskInterruptsSigs[2]))
+							findx_pattern(data, dataType, i + 21, length, &__OSUnmaskInterruptsSigs[2]) &&
+							findx_pattern(data, dataType, i + 38, length, &__fstLoadSigs[4]))
 							DVDInitSigs[j].offsetFoundAt = i;
 						break;
 					case 7:
 						if (findx_pattern(data, dataType, i + 13, length, &__DVDClearWaitingQueueSigs[1]) &&
 							findx_pattern(data, dataType, i + 23, length, &__OSSetInterruptHandlerSigs[1]) &&
-							findx_pattern(data, dataType, i + 25, length, &__OSUnmaskInterruptsSigs[1]))
+							findx_pattern(data, dataType, i + 25, length, &__OSUnmaskInterruptsSigs[1]) &&
+							findx_pattern(data, dataType, i + 42, length, &__fstLoadSigs[3]))
 							DVDInitSigs[j].offsetFoundAt = i;
 						break;
 				}
@@ -5096,6 +5113,43 @@ int Patch_Hypervisor(u32 *data, u32 length, int dataType)
 					case 1:
 						if (findx_pattern(data, dataType, i +  9, length, &__DVDLowTestAlarmSig))
 							__DVDTestAlarmSigs[j].offsetFoundAt = i;
+						break;
+				}
+			}
+		}
+		
+		for (j = 0; j < sizeof(__fstLoadSigs) / sizeof(FuncPattern); j++) {
+			if (compare_pattern(&fp, &__fstLoadSigs[j])) {
+				switch (j) {
+					case 0:
+						if (findx_pattern(data, dataType, i +  6, length, &OSGetArenaHiSigs[0]) &&
+							findx_pattern(data, dataType, i + 19, length, &DVDResetSigs[0]) &&
+							findx_pattern(data, dataType, i + 86, length, &OSSetArenaHiSig))
+							__fstLoadSigs[j].offsetFoundAt = i;
+						break;
+					case 1:
+						if (findx_pattern(data, dataType, i +  6, length, &OSGetArenaHiSigs[0]) &&
+							findx_pattern(data, dataType, i + 19, length, &DVDResetSigs[0]) &&
+							findx_pattern(data, dataType, i + 92, length, &OSSetArenaHiSig))
+							__fstLoadSigs[j].offsetFoundAt = i;
+						break;
+					case 2:
+						if (findx_pattern(data, dataType, i +  8, length, &OSGetArenaHiSigs[1]) &&
+							findx_pattern(data, dataType, i + 17, length, &DVDResetSigs[1]) &&
+							findx_pattern(data, dataType, i + 76, length, &OSSetArenaHiSig))
+							__fstLoadSigs[j].offsetFoundAt = i;
+						break;
+					case 3:
+						if (findx_pattern(data, dataType, i +  8, length, &OSGetArenaHiSigs[1]) &&
+							findx_pattern(data, dataType, i + 17, length, &DVDResetSigs[1]) &&
+							findx_pattern(data, dataType, i + 82, length, &OSSetArenaHiSig))
+							__fstLoadSigs[j].offsetFoundAt = i;
+						break;
+					case 4:
+						if (findx_pattern(data, dataType, i +  6, length, &OSGetArenaHiSigs[2]) &&
+							findx_pattern(data, dataType, i + 15, length, &DVDResetSigs[2]) &&
+							findx_pattern(data, dataType, i + 83, length, &OSSetArenaHiSig))
+							__fstLoadSigs[j].offsetFoundAt = i;
 						break;
 				}
 			}
@@ -8068,9 +8122,10 @@ void Patch_Video(u32 *data, u32 length, int dataType)
 		{ 42, 10, 3, 2, 2, 8, NULL, 0, "VIGetNextField" },
 		{ 39, 13, 4, 3, 2, 6, NULL, 0, "VIGetNextField" }
 	};
-	FuncPattern VIGetDTVStatusSigs[2] = {
+	FuncPattern VIGetDTVStatusSigs[3] = {
 		{ 17, 3, 2, 2, 0, 3, NULL, 0, "VIGetDTVStatusD" },
-		{ 15, 4, 3, 2, 0, 2, NULL, 0, "VIGetDTVStatus" }
+		{ 15, 4, 3, 2, 0, 2, NULL, 0, "VIGetDTVStatus" },
+		{ 15, 4, 3, 2, 0, 2, NULL, 0, "VIGetDTVStatus" }	// SN Systems ProDG
 	};
 	FuncPattern __GXInitGXSigs[11] = {
 		{ 1130, 567, 66, 133, 46, 46, NULL, 0, "__GXInitGXD" },
@@ -8997,13 +9052,25 @@ void Patch_Video(u32 *data, u32 length, int dataType)
 					case 0:
 						if (findx_pattern(data, dataType, i +  4, length, &OSDisableInterruptsSig) &&
 							get_immediate(data,   i +  6, i +  7, &address) && address == 0xCC00206E &&
-							findx_pattern(data, dataType, i + 10, length, &OSRestoreInterruptsSig))
+							(data[i +  8] & 0xFC00FFFF) == 0x540007BE &&
+							findx_pattern(data, dataType, i + 10, length, &OSRestoreInterruptsSig) &&
+							(data[i + 11] & 0xFC00FFFF) == 0x540007FE)
 							VIGetDTVStatusSigs[j].offsetFoundAt = i;
 						break;
 					case 1:
 						if (findx_pattern(data, dataType, i +  4, length, &OSDisableInterruptsSig) &&
 							get_immediate(data,   i +  5, i +  6, &address) && address == 0xCC00206E &&
-							findx_pattern(data, dataType, i +  8, length, &OSRestoreInterruptsSig))
+							(data[i +  7] & 0xFC00FFFF) == 0x540007BE &&
+							findx_pattern(data, dataType, i +  8, length, &OSRestoreInterruptsSig) &&
+							(data[i +  9] & 0xFC00FFFF) == 0x540007FE)
+							VIGetDTVStatusSigs[j].offsetFoundAt = i;
+						break;
+					case 2:
+						if (findx_pattern(data, dataType, i +  4, length, &OSDisableInterruptsSig) &&
+							get_immediate(data,   i +  5, i +  6, &address) && address == 0xCC00206E &&
+							(data[i +  7] & 0xFC00FFFF) == 0x540007BE &&
+							findx_pattern(data, dataType, i +  8, length, &OSRestoreInterruptsSig) &&
+							(data[i + 10] & 0xFC00FFFF) == 0x540007FE)
 							VIGetDTVStatusSigs[j].offsetFoundAt = i;
 						break;
 				}
@@ -10700,11 +10767,17 @@ void Patch_Video(u32 *data, u32 length, int dataType)
 				
 				data[i + 0] = 0x38600000;	// li		r3, 0
 				data[i + 1] = 0x4E800020;	// blr
-			} else if (swissSettings.forceDTVStatus) {
+			} else if (swissSettings.forceDTVStatus == 1) {
 				memset(data + i, 0, VIGetDTVStatusSigs[j].Length * sizeof(u32));
 				
 				data[i + 0] = 0x38600001;	// li		r3, 1
 				data[i + 1] = 0x4E800020;	// blr
+			} else if (swissSettings.forceDTVStatus > 1) {
+				switch (j) {
+					case 0: data[i + 11] = 0x57E3FFFE; break;	// extrwi	r3, r31, 1, 30
+					case 1: data[i +  9] = 0x57E3FFFE; break;	// extrwi	r3, r31, 1, 30
+					case 2: data[i + 10] = 0x57E3FFFE; break;	// extrwi	r3, r31, 1, 30
+				}
 			}
 			print_debug("Found:[%s$%i] @ %08X\n", VIGetDTVStatusSigs[j].Name, j, VIGetDTVStatus);
 		}

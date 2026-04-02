@@ -42,6 +42,7 @@ char *swapCStickStr[] = {"No", "X", "Y", "X&Y"};
 char *configAudioBufferStr[] = {"Off", "Auto", "On"};
 char *disableMCPGameIDStr[] = {"No", "Slot A", "Slot B", "Slot A&B"};
 char *disableVideoPatchesStr[] = {"None", "Game", "All"};
+char *forceDTVStatusStr[] = {"No", "Yes", "Region Switch"};
 char *emulateAudioStreamStr[] = {"Off", "Auto", "On"};
 char *emulateReadSpeedStr[] = {"No", "Yes", "Wii"};
 char *disableMemoryCardStr[] = {"No", "Slot A", "Slot B"};
@@ -49,7 +50,7 @@ char *sramLanguageStr[] = {"English", "German", "French", "Spanish", "Italian", 
 char *sramVideoStr[] = {"NTSC", "PAL", "PAL-M"};
 char *igrTypeStr[] = {"Disabled", "Reboot", "Apploader"};
 char *aveCompatStr[] = {"AVE N-DOL", "AVE P-DOL", "CMPV-DOL", "GCDigital", "GCVideo", "AVE-RVL"};
-char *fileBrowserStr[] = {"Standard", "Fullwidth", "Carousel"};
+char *fileBrowserTypeStr[] = {"Standard", "Fullwidth", "Carousel"};
 char *bs2BootStr[] = {"No", "Yes", "Sound 1", "Sound 2"};
 char *recentListLevelStr[] = {"Off", "Lazy", "On"};
 
@@ -59,23 +60,29 @@ static char *tooltips_global[PAGE_GLOBAL_MAX+1] = {
 	"System Video:\n\nIntended to select between NTSC and PAL-M on DOL-002(BRA)",
 	"Screen Position:\n\nAdjusts the horizontal screen position in games",
 	"System Language:\n\nSystem language used in games, primarily multi-5 PAL games",
-	"Configuration Device:\n\nThe device that Swiss will use to load and save swiss.ini from.\nThis setting is stored in SRAM and will remain on reboot.",
+	"Configuration Device:\n\nThe device that Swiss will use to load and save settings from.\nThis setting is stored in SRAM and will remain on reboot.",
 	NULL,
-	"File Browser Type:\n\nStandard - Displays files with minimal detail (default)\n\nCarousel - Suited towards Game/DOL only use, consider combining\nthis option with the File Management setting turned off\nand Hide Unknown File Types turned on for a better experience.",
-	"File Management:\n\nWhen enabled, pressing Z on an entry in the file browser will allow it to be managed.",
-	"Recent List:\n\n(On) - Press Start while browsing to show a recent list.\n(Lazy) - Same as On but list updates only for new entries.\n(Off) - Recent list is completely disabled.\n\nThe lazy/off options exist to minimise SD card writes.",
-	NULL,
-	"Hide unknown file types:\n\nDisabled - Show all files (default)\nEnabled - Swiss will hide unknown file types from being displayed\n\nKnown file types are:\n GameCube Executables (.bin/.dol/.elf)\n Disc images (.gcm/.iso/.nkit.iso/.tgc)\n MP3 Music (.mp3)\n WASP/WKF Flash files (.fzn)\n GameCube Memory Card Files (.gci/.gcs/.sav)\n GameCube Executables with parameters appended (.dol+cli)",
-	"Flatten directory:\n\nFlattens a directory structure matching a glob pattern.",
 	"Init DVD Drive at startup:\n\nDisabled - Leave it as-is (default)\nEnabled - Deassert reset signal when Swiss starts\n\nThis is necessary for the eject button to function on the\nPanasonic Q when Swiss is used as IPL replacement.",
 	"Stop DVD Drive motor:\n\nDisabled - Leave it as-is (default)\nEnabled - Stop the disc from spinning when Swiss starts\n\nThis option is mostly for users booting from game save exploits\nwhere the disc will already be spinning.",
 	"Configure Audio Buffer:\n\nOff - Disable audio streaming\nAuto - Enable audio streaming if the disc is known to use it\nOn - Enable audio streaming if the disc asks for it (default)\n\nThe audio buffer consumes a large portion of the GameCube\ndisc drive's read-ahead cache, lengthening load times.",
-	"SD/IDE-EXI Speed:\n\nThe clock speed to try using on the EXI bus for SD cards and\nIDE-EXI devices. 32 MHz may not work with some SD cards or\nSD card adapters.",
+	"SD/IDE-EXI Speed:\n\nThe clock speed to try using on the EXI bus for SD cards and\nIDE-EXI devices. 27 MHz may not work with some SD cards or\nSD card adapters.",
 	"AVE Compatibility:\n\nSets the compatibility mode for the used audio/video encoder.\n\nAVE N-DOL - Output PAL as NTSC 50\nAVE P-DOL - Disable progressive scan mode\nCMPV-DOL - Enable 1080i & 540p\nGCDigital - Apply input filtering in OSD\nGCVideo - Apply general workarounds for GCVideo (default)\nAVE-RVL - Support 960i & 1152i without WiiVideo",
-	"Force DTV Status:\n\nDisabled - Use detect signal from the Digital AV Out (default)\nEnabled - Force detection in the case of a hardware fault",
+	"Force DTV Status:\n\nDisabled - Use detect signal from the Digital AV Out (default)\nEnabled - Force detection in the case of a hardware fault\nRegion Switch - Ease transition between SD/ED TV setups",
 	"RetroTINK-4K HDMI Input:\n\nFor GCDigital compatibility mode:\n Requires FX-Framework firmware version 3.9.46.178 or later\n and RetroTINK-4K firmware version 1.9.4 or later, and using\n DV1-Direct mode.\n\nFor GCVideo compatibility mode:\n Requires GCVideo-DVI firmware version 3.0 or later.",
 	"Enable USB Gecko:\n\nIf a USB Gecko is present, messages output to the debug UART\nby Swiss/games will be redirected. When the USB host isn't\nactively reading from the USB Gecko, it may cause the system\nto hang.\n\nwiiload is also made available for iterative development.",
 	"Wait for USB Gecko:\n\nWait for the transmit buffer to be read by the USB host when full."
+};
+
+static char *tooltips_interface[PAGE_INTERFACE_MAX+1] = {
+	"File Browser Type:\n\nStandard - Displays files with minimal detail (default)\n\nCarousel - Suited towards Game/DOL only use, consider combining\nthis option with the File Management setting turned off\nand Hide Unknown File Types turned on for a better experience.",
+	"File Browser Type for apps:\n\nApplicable to the /apps directory.",
+	"File Browser Type for games:\n\nApplicable to the /games directory.",
+	"File Management:\n\nWhen enabled, pressing Z on an entry in the file browser will\nallow it to be managed.",
+	"Recent List:\n\n(On) - Press Start while browsing to show a recent list.\n(Lazy) - Same as On but list updates only for new entries.\n(Off) - Recent list is completely disabled.\n\nThe lazy/off options exist to minimise SD card writes.",
+	NULL,
+	"Hide unknown file types:\n\nDisabled - Show all files (default)\nEnabled - Hide unknown file types from being displayed\n\nKnown file types are:\n GameCube Executables (.bin/.dol/.elf)\n Disc images (.gcm/.iso/.nkit.iso/.tgc)\n MP3 Music (.mp3)\n WASP/WKF Flash files (.fzn)\n GameCube Memory Card files (.gci/.gcs/.sav)\n GameCube Executables with parameters appended (.dol+cli)",
+	NULL,
+	"Flatten directory:\n\nFlattens a directory structure matching a glob pattern."
 };
 
 static char *tooltips_network[PAGE_NETWORK_MAX+1] = {
@@ -84,8 +91,7 @@ static char *tooltips_network[PAGE_NETWORK_MAX+1] = {
 
 static char *tooltips_game_global[PAGE_GAME_GLOBAL_MAX+1] = {
 	"In-Game Reset: (A + Z + Start)\n\nReboot - Perform hot reset with a compatible device\nApploader - Requires /swiss/patches/apploader.img",
-	"Load GameCube Main Menu:\n\nWhen enabled, games will be booted with the GameCube\nlogo screen and Main Menu accessible with patches applied.",
-	NULL,
+	"Load GameCube Main Menu:\n\nWhen enabled, games will be booted with the GameCube logo\nscreen and Main Menu accessible with patches applied.\n\nRequires /swiss/patches/ipl.bin on Wii.",
 	NULL,
 	NULL,
 	"Force Video Active:\n\nA workaround for GCVideo-DVI firmware version series 3.0,\nrendered obsolete by 3.1 and later.",
@@ -104,7 +110,7 @@ static char *tooltips_game[PAGE_GAME_DEFAULTS_MAX+1] = {
 	NULL,
 	"Fix Pixel Center:\n\nNot to be confused with the \223480p Pixel Fix\224 on Wii.",
 	NULL,
-	NULL,
+	"Force Anisotropic Filter:\n\nThe GameCube's texture sampling hardware is optimised for the\ntrilinear filtering of 16 bpp textures and the bilinear filtering of\n32 bpp textures.\n\nIt is not unusual for the performance to randomly plummet once\nanisotropic filtering is enabled, so do so sparingly.",
 	NULL,
 	"Force Polling Rate:\n\nVSync - Highest compatibility\n1000Hz - Lowest input latency",
 	"Invert Camera Stick:\n\nNo - Leave C Stick as-is (default)\nX - Invert X-axis of the C Stick\nY - Invert Y-axis of the C Stick\nX&Y - Invert both axes of the C Stick",
@@ -120,7 +126,7 @@ static char *tooltips_game[PAGE_GAME_DEFAULTS_MAX+1] = {
 };
 
 // Number of settings (including Back, Next, Save, Exit buttons) per page
-int settings_count_pp[5] = {PAGE_GLOBAL_MAX, PAGE_NETWORK_MAX, PAGE_GAME_GLOBAL_MAX, PAGE_GAME_DEFAULTS_MAX, PAGE_GAME_MAX};
+int settings_count_pp[PAGE_MAX+1] = {PAGE_GLOBAL_MAX, PAGE_INTERFACE_MAX, PAGE_NETWORK_MAX, PAGE_GAME_GLOBAL_MAX, PAGE_GAME_DEFAULTS_MAX, PAGE_GAME_MAX};
 
 char* getConfigDeviceName(SwissSettings *settings) {
 	DEVICEHANDLER_INTERFACE *configDevice = getDeviceByUniqueId(settings->configDeviceId);
@@ -131,6 +137,9 @@ char* get_tooltip(int page_num, int option) {
 	char *textPtr = NULL;
 	if(page_num == PAGE_GLOBAL) {
 		textPtr = tooltips_global[option];
+	}
+	else if(page_num == PAGE_INTERFACE) {
+		textPtr = tooltips_interface[option];
 	}
 	else if(page_num == PAGE_NETWORK) {
 		textPtr = tooltips_network[option];
@@ -232,13 +241,13 @@ uiDrawObj_t* settings_draw_page(int page_num, int option, ConfigEntry *gameConfi
 		int scrollBarHeight = 90+(settings_per_page*20);
 		int scrollBarTabHeight = (int)((float)scrollBarHeight/(float)SET_PAGE_1_NEXT);
 		DrawAddChild(page, DrawVertScrollBar(getVideoMode()->fbWidth-45, 110, 25, scrollBarHeight, (float)((float)option/(float)(SET_PAGE_1_NEXT-1)),scrollBarTabHeight));
-		DrawAddChild(page, DrawLabel(page_x_ofs_key, 77, "Global Settings (1/5):"));
+		DrawAddChild(page, DrawLabel(page_x_ofs_key, 77, "Global Settings (1/6):"));
 		bool tvEnable = swissSettings.aveCompat != AVE_RVL_COMPAT;
 		bool dvdEnable = deviceHandler_getDeviceAvailable(&__device_dvd);
 		bool dtvEnable = !in_range(swissSettings.aveCompat, AVE_N_DOL_COMPAT, AVE_P_DOL_COMPAT);
 		bool rt4kEnable = in_range(swissSettings.aveCompat, GCDIGITAL_COMPAT, GCVIDEO_COMPAT);
 		// TODO settings to a new typedef that ties type etc all together, then draw a "page" of these rather than this at some point.
-		if(option < SET_HIDE_UNK) {
+		if(option < SET_AVE_COMPAT) {
 			drawSettingEntryString(page, &page_y_ofs, "System Boot Mode:", swissSettings.sramBoot ? "Production" : "Default", option == SET_SYS_BOOTMODE, true);
 			drawSettingEntryString(page, &page_y_ofs, "System Sound:", swissSettings.sramStereo ? "Stereo" : "Mono", option == SET_SYS_SOUND, true);
 			drawSettingEntryString(page, &page_y_ofs, "System Video:", sramVideoStr[swissSettings.sramVideo], option == SET_SYS_VIDEO, tvEnable);
@@ -248,30 +257,36 @@ uiDrawObj_t* settings_draw_page(int page_num, int option, ConfigEntry *gameConfi
 			drawSettingEntryString(page, &page_y_ofs, "Configuration Device:", getConfigDeviceName(&swissSettings), option == SET_CONFIG_DEV, true);
 			sprintf(uiVModeStr, "%s%s", getVideoModeString(getVideoModeFromSwissSetting(swissSettings.uiVMode)), swissSettings.uiVMode == 0 ? " (Auto) " : "");
 			drawSettingEntryString(page, &page_y_ofs, "Swiss Video Mode:", uiVModeStr, option == SET_SWISS_VIDEOMODE, true);
-			drawSettingEntryString(page, &page_y_ofs, "File Browser Type:", fileBrowserStr[swissSettings.fileBrowserType], option == SET_FILEBROWSER_TYPE, true);
-			drawSettingEntryBoolean(page, &page_y_ofs, "File Management:", swissSettings.enableFileManagement, option == SET_FILE_MGMT, true);
-			drawSettingEntryString(page, &page_y_ofs, "Recent List:", recentListLevelStr[swissSettings.recentListLevel], option == SET_RECENT_LIST, true);
-			drawSettingEntryBoolean(page, &page_y_ofs, "Show hidden files:", swissSettings.showHiddenFiles, option == SET_SHOW_HIDDEN, true);
-		} else {
-			drawSettingEntryBoolean(page, &page_y_ofs, "Hide unknown file types:", swissSettings.hideUnknownFileTypes, option == SET_HIDE_UNK, true);
-			drawSettingEntryString(page, &page_y_ofs, "Flatten directory:", swissSettings.flattenDir, option == SET_FLATTEN_DIR, true);
 			drawSettingEntryBoolean(page, &page_y_ofs, "Init DVD Drive at startup:", swissSettings.initDVDDriveAtStart, option == SET_INIT_DRIVE, dvdEnable);
 			drawSettingEntryBoolean(page, &page_y_ofs, "Stop DVD Drive motor:", swissSettings.stopMotor, option == SET_STOP_MOTOR, dvdEnable);
 			drawSettingEntryString(page, &page_y_ofs, "Configure Audio Buffer:", configAudioBufferStr[swissSettings.configAudioBuffer], option == SET_AUDIO_BUFFER, dvdEnable);
-			drawSettingEntryString(page, &page_y_ofs, "SD/IDE-EXI Speed:", swissSettings.exiSpeed ? "32 MHz" : "16 MHz", option == SET_EXI_SPEED, true);
+			drawSettingEntryString(page, &page_y_ofs, "SD/IDE-EXI Speed:", swissSettings.exiSpeed ? "27 MHz" : "13.5 MHz", option == SET_EXI_SPEED, true);
+		} else {
 			drawSettingEntryString(page, &page_y_ofs, "AVE Compatibility:", aveCompatStr[swissSettings.aveCompat], option == SET_AVE_COMPAT, true);
-			drawSettingEntryBoolean(page, &page_y_ofs, "Force DTV Status:", swissSettings.forceDTVStatus, option == SET_FORCE_DTVSTATUS, dtvEnable);
+			drawSettingEntryString(page, &page_y_ofs, "Force DTV Status:", forceDTVStatusStr[swissSettings.forceDTVStatus], option == SET_FORCE_DTVSTATUS, dtvEnable);
 			drawSettingEntryBoolean(page, &page_y_ofs, "RetroTINK-4K HDMI Input:", swissSettings.rt4kOptim, option == SET_RT4K_OPTIM, rt4kEnable);
 			drawSettingEntryString(page, &page_y_ofs, "Enable USB Gecko:", enableUSBGeckoStr[swissSettings.enableUSBGecko], option == SET_ENABLE_USBGECKO, true);
 			drawSettingEntryBoolean(page, &page_y_ofs, "Wait for USB Gecko:", swissSettings.waitForUSBGecko, option == SET_WAIT_USBGECKO, true);
 		}
 	}
+	else if(page_num == PAGE_INTERFACE) {
+		DrawAddChild(page, DrawLabel(page_x_ofs_key, 77, "Interface Settings (2/6):"));
+		drawSettingEntryString(page, &page_y_ofs, "File Browser Type:", fileBrowserTypeStr[swissSettings.fileBrowserType], option == SET_FILEBROWSER_TYPE, true);
+		drawSettingEntryString(page, &page_y_ofs, "File Browser Type for apps:", fileBrowserTypeStr[swissSettings.appsBrowserType], option == SET_APPSBROWSER_TYPE, true);
+		drawSettingEntryString(page, &page_y_ofs, "File Browser Type for games:", fileBrowserTypeStr[swissSettings.gameBrowserType], option == SET_GAMEBROWSER_TYPE, true);
+		drawSettingEntryBoolean(page, &page_y_ofs, "File Management:", swissSettings.enableFileManagement, option == SET_FILE_MGMT, true);
+		drawSettingEntryString(page, &page_y_ofs, "Recent List:", recentListLevelStr[swissSettings.recentListLevel], option == SET_RECENT_LIST, true);
+		drawSettingEntryBoolean(page, &page_y_ofs, "Show hidden files:", swissSettings.showHiddenFiles, option == SET_SHOW_HIDDEN, true);
+		drawSettingEntryBoolean(page, &page_y_ofs, "Hide unknown file types:", swissSettings.hideUnknownFileTypes, option == SET_HIDE_UNK, true);
+		drawSettingEntryBoolean(page, &page_y_ofs, "Boot without prompts:", swissSettings.autoBoot, option == SET_AUTOBOOT, true);
+		drawSettingEntryString(page, &page_y_ofs, "Flatten directory:", swissSettings.flattenDir, option == SET_FLATTEN_DIR, true);
+	}
 	else if(page_num == PAGE_NETWORK) {
 		int settings_per_page = 10;
 		int scrollBarHeight = 90+(settings_per_page*20);
-		int scrollBarTabHeight = (int)((float)scrollBarHeight/(float)SET_PAGE_2_BACK);
-		DrawAddChild(page, DrawVertScrollBar(getVideoMode()->fbWidth-45, 110, 25, scrollBarHeight, (float)((float)option/(float)(SET_PAGE_2_BACK-1)),scrollBarTabHeight));
-		DrawAddChild(page, DrawLabel(page_x_ofs_key, 77, "Network Settings (2/5):"));
+		int scrollBarTabHeight = (int)((float)scrollBarHeight/(float)SET_PAGE_3_BACK);
+		DrawAddChild(page, DrawVertScrollBar(getVideoMode()->fbWidth-45, 110, 25, scrollBarHeight, (float)((float)option/(float)(SET_PAGE_3_BACK-1)),scrollBarTabHeight));
+		DrawAddChild(page, DrawLabel(page_x_ofs_key, 77, "Network Settings (3/6):"));
 		bool netEnable = net_initialized || bba_exists(LOC_ANY);
 		// TODO settings to a new typedef that ties type etc all together, then draw a "page" of these rather than this at some point.
 		if(option < SET_FTP_USER) {
@@ -299,14 +314,13 @@ uiDrawObj_t* settings_draw_page(int page_num, int option, ConfigEntry *gameConfi
 		}
 	}
 	else if(page_num == PAGE_GAME_GLOBAL) {
-		DrawAddChild(page, DrawLabel(page_x_ofs_key, 77, "Global Game Settings (3/5):"));
+		DrawAddChild(page, DrawLabel(page_x_ofs_key, 77, "Global Game Settings (4/6):"));
 		bool enabledVideoPatches = swissSettings.disableVideoPatches < 2;
 		bool emulatedMemoryCard = devices[DEVICE_CUR] == NULL || (devices[DEVICE_CUR]->emulable & EMU_MEMCARD);
 		bool enabledHypervisor = devices[DEVICE_CUR] == NULL || (devices[DEVICE_CUR]->features & FEAT_HYPERVISOR);
 		bool dbgEnable = devices[DEVICE_CUR] != &__device_usbgecko && deviceHandler_getDeviceAvailable(&__device_usbgecko);
 		drawSettingEntryString(page, &page_y_ofs, "In-Game Reset:", igrTypeStr[swissSettings.igrType], option == SET_IGR, enabledHypervisor);
 		drawSettingEntryString(page, &page_y_ofs, "Load GameCube Main Menu:", bs2BootStr[swissSettings.bs2Boot], option == SET_BS2BOOT, true);
-		drawSettingEntryBoolean(page, &page_y_ofs, "Boot without prompts:", swissSettings.autoBoot, option == SET_AUTOBOOT, true);
 		drawSettingEntryBoolean(page, &page_y_ofs, "Emulate Memory Card:", swissSettings.emulateMemoryCard, option == SET_EMULATE_MEMCARD, emulatedMemoryCard);
 		drawSettingEntryString(page, &page_y_ofs, "Disable MemCard PRO GameID:", disableMCPGameIDStr[swissSettings.disableMCPGameID], option == SET_DISABLE_MCPGAMEID, true);
 		drawSettingEntryBoolean(page, &page_y_ofs, "Force Video Active:", swissSettings.forceVideoActive, option == SET_FORCE_VIDACTIVE, enabledVideoPatches);
@@ -319,9 +333,9 @@ uiDrawObj_t* settings_draw_page(int page_num, int option, ConfigEntry *gameConfi
 	else if(page_num == PAGE_GAME_DEFAULTS) {
 		int settings_per_page = 10;
 		int scrollBarHeight = 90+(settings_per_page*20);
-		int scrollBarTabHeight = (int)((float)scrollBarHeight/(float)SET_PAGE_4_BACK);
-		DrawAddChild(page, DrawVertScrollBar(getVideoMode()->fbWidth-45, 110, 25, scrollBarHeight, (float)((float)option/(float)(SET_PAGE_4_BACK-1)),scrollBarTabHeight));
-		DrawAddChild(page, DrawLabel(page_x_ofs_key, 77, "Default Game Settings (4/5):"));
+		int scrollBarTabHeight = (int)((float)scrollBarHeight/(float)SET_PAGE_5_BACK);
+		DrawAddChild(page, DrawVertScrollBar(getVideoMode()->fbWidth-45, 110, 25, scrollBarHeight, (float)((float)option/(float)(SET_PAGE_5_BACK-1)),scrollBarTabHeight));
+		DrawAddChild(page, DrawLabel(page_x_ofs_key, 77, "Default Game Settings (5/6):"));
 		bool enabledVideoPatches = swissSettings.disableVideoPatches < 2;
 		bool emulatedAudioStream = devices[DEVICE_CUR] == NULL || (devices[DEVICE_CUR]->emulable & EMU_AUDIO_STREAMING);
 		bool emulatedReadSpeed = devices[DEVICE_CUR] == NULL || (devices[DEVICE_CUR]->emulable & EMU_READ_SPEED);
@@ -360,9 +374,9 @@ uiDrawObj_t* settings_draw_page(int page_num, int option, ConfigEntry *gameConfi
 	else if(page_num == PAGE_GAME) {
 		int settings_per_page = 10;
 		int scrollBarHeight = 90+(settings_per_page*20);
-		int scrollBarTabHeight = (int)((float)scrollBarHeight/(float)SET_PAGE_5_BACK);
-		DrawAddChild(page, DrawVertScrollBar(getVideoMode()->fbWidth-45, 110, 25, scrollBarHeight, (float)((float)option/(float)(SET_PAGE_5_BACK-1)),scrollBarTabHeight));
-		DrawAddChild(page, DrawLabel(page_x_ofs_key, 77, "Current Game Settings (5/5):"));
+		int scrollBarTabHeight = (int)((float)scrollBarHeight/(float)SET_PAGE_6_BACK);
+		DrawAddChild(page, DrawVertScrollBar(getVideoMode()->fbWidth-45, 110, 25, scrollBarHeight, (float)((float)option/(float)(SET_PAGE_6_BACK-1)),scrollBarTabHeight));
+		DrawAddChild(page, DrawLabel(page_x_ofs_key, 77, "Current Game Settings (6/6):"));
 		bool enabledGamePatches = gameConfig != NULL && !gameConfig->forceCleanBoot;
 		if(enabledGamePatches) {
 			bool enabledVideoPatches = swissSettings.disableVideoPatches < 2;
@@ -512,26 +526,6 @@ void settings_toggle(int page, int option, int direction, ConfigEntry *gameConfi
 				swissSettings.uiVMode += direction;
 				swissSettings.uiVMode = (swissSettings.uiVMode + 7) % 7;
 			break;
-			case SET_FILEBROWSER_TYPE:
-				swissSettings.fileBrowserType += direction;
-				swissSettings.fileBrowserType = (swissSettings.fileBrowserType + BROWSER_MAX) % BROWSER_MAX;
-			break;
-			case SET_FILE_MGMT:
-				swissSettings.enableFileManagement ^=1;
-			break;
-			case SET_RECENT_LIST:
-				swissSettings.recentListLevel += direction;
-				swissSettings.recentListLevel = (swissSettings.recentListLevel + 3) % 3;
-			break;
-			case SET_SHOW_HIDDEN:
-				swissSettings.showHiddenFiles ^= 1;
-			break;
-			case SET_HIDE_UNK:
-				swissSettings.hideUnknownFileTypes ^= 1;
-			break;
-			case SET_FLATTEN_DIR:
-				DrawGetTextEntry(ENTRYMODE_NUMERIC|ENTRYMODE_ALPHA, "Flatten directory", &swissSettings.flattenDir, sizeof(swissSettings.flattenDir) - 1);
-			break;
 			case SET_INIT_DRIVE:
 				if(deviceHandler_getDeviceAvailable(&__device_dvd))
 					swissSettings.initDVDDriveAtStart ^= 1;
@@ -554,8 +548,10 @@ void settings_toggle(int page, int option, int direction, ConfigEntry *gameConfi
 				swissSettings.aveCompat = (swissSettings.aveCompat + AVE_COMPAT_MAX) % AVE_COMPAT_MAX;
 			break;
 			case SET_FORCE_DTVSTATUS:
-				if(!in_range(swissSettings.aveCompat, AVE_N_DOL_COMPAT, AVE_P_DOL_COMPAT))
-					swissSettings.forceDTVStatus ^= 1;
+				if(!in_range(swissSettings.aveCompat, AVE_N_DOL_COMPAT, AVE_P_DOL_COMPAT)) {
+					swissSettings.forceDTVStatus += direction;
+					swissSettings.forceDTVStatus = (swissSettings.forceDTVStatus + 3) % 3;
+				}
 			break;
 			case SET_RT4K_OPTIM:
 				if(in_range(swissSettings.aveCompat, GCDIGITAL_COMPAT, GCVIDEO_COMPAT)) {
@@ -592,6 +588,41 @@ void settings_toggle(int page, int option, int direction, ConfigEntry *gameConfi
 				GXRModeObj *forcedMode = getVideoModeFromSwissSetting(swissSettings.uiVMode);
 				DrawVideoMode(forcedMode);
 			}
+			break;
+		}
+	}
+	else if(page == PAGE_INTERFACE) {
+		switch(option) {
+			case SET_FILEBROWSER_TYPE:
+				swissSettings.fileBrowserType += direction;
+				swissSettings.fileBrowserType = (swissSettings.fileBrowserType + BROWSER_MAX) % BROWSER_MAX;
+			break;
+			case SET_APPSBROWSER_TYPE:
+				swissSettings.appsBrowserType += direction;
+				swissSettings.appsBrowserType = (swissSettings.appsBrowserType + BROWSER_MAX) % BROWSER_MAX;
+			break;
+			case SET_GAMEBROWSER_TYPE:
+				swissSettings.gameBrowserType += direction;
+				swissSettings.gameBrowserType = (swissSettings.gameBrowserType + BROWSER_MAX) % BROWSER_MAX;
+			break;
+			case SET_FILE_MGMT:
+				swissSettings.enableFileManagement ^= 1;
+			break;
+			case SET_RECENT_LIST:
+				swissSettings.recentListLevel += direction;
+				swissSettings.recentListLevel = (swissSettings.recentListLevel + 3) % 3;
+			break;
+			case SET_SHOW_HIDDEN:
+				swissSettings.showHiddenFiles ^= 1;
+			break;
+			case SET_HIDE_UNK:
+				swissSettings.hideUnknownFileTypes ^= 1;
+			break;
+			case SET_AUTOBOOT:
+				swissSettings.autoBoot ^= 1;
+			break;
+			case SET_FLATTEN_DIR:
+				DrawGetTextEntry(ENTRYMODE_NUMERIC|ENTRYMODE_ALPHA, "Flatten directory", &swissSettings.flattenDir, sizeof(swissSettings.flattenDir) - 1);
 			break;
 		}
 	}
@@ -671,9 +702,6 @@ void settings_toggle(int page, int option, int direction, ConfigEntry *gameConfi
 				swissSettings.bs2Boot += direction;
 				swissSettings.bs2Boot = (swissSettings.bs2Boot + 4) % 4;
 			break;
-			case SET_AUTOBOOT:
-				swissSettings.autoBoot ^=1;
-			break;
 			case SET_EMULATE_MEMCARD:
 				if(devices[DEVICE_CUR] == NULL || (devices[DEVICE_CUR]->emulable & EMU_MEMCARD))
 					swissSettings.emulateMemoryCard ^= 1;
@@ -705,7 +733,6 @@ void settings_toggle(int page, int option, int direction, ConfigEntry *gameConfi
 				if(direction == 0) {
 					swissSettings.igrType = 0;
 					swissSettings.bs2Boot = 0;
-					swissSettings.autoBoot = 0;
 					swissSettings.emulateMemoryCard = 0;
 					swissSettings.disableMCPGameID = 0;
 					swissSettings.forceVideoActive = 0;
@@ -1119,7 +1146,7 @@ int show_settings(int page, int option, ConfigEntry *config) {
 				page--; option = 0;
 			}
 			// These use text input, allow them to be accessed with the A button
-			if(page == PAGE_GLOBAL && option == SET_FLATTEN_DIR) {
+			if(page == PAGE_INTERFACE && option == SET_FLATTEN_DIR) {
 				settings_toggle(page, option, 0, config);
 			}
 			if(page == PAGE_NETWORK && (in_range(option, SET_BBA_LOCALIP, SET_BBA_GATEWAY) ||

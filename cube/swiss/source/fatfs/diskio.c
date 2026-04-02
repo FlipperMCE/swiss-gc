@@ -81,7 +81,8 @@ DRESULT disk_read (
 	BYTE pdrv,		/* Physical drive number to identify the drive */
 	BYTE *buff,		/* Data buffer to store read data */
 	LBA_t sector,	/* Start sector in LBA */
-	UINT count		/* Number of sectors to read */
+	UINT count,		/* Number of sectors to read */
+	BYTE opt		/* Operation mode 0:Multi-sector or 1:Single-sector */
 )
 {
 	if (pdrv >= DEV_MAX || count == 0)
@@ -91,7 +92,7 @@ DRESULT disk_read (
 	if (!disc[pdrv])
 		return RES_NOTRDY;
 
-	return disc[pdrv]->vt->read_sectors(disc[pdrv], buff, sector, count) ? RES_OK : RES_ERROR;
+	return disc[pdrv]->vt->read_sectors(disc[pdrv], buff, sector, count, opt) ? RES_OK : RES_ERROR;
 }
 
 
@@ -104,7 +105,8 @@ DRESULT disk_write (
 	BYTE pdrv,			/* Physical drive number to identify the drive */
 	const BYTE *buff,	/* Data to be written */
 	LBA_t sector,		/* Start sector in LBA */
-	UINT count			/* Number of sectors to write */
+	UINT count,			/* Number of sectors to write */
+	BYTE opt			/* Operation mode 0:Multi-sector or 1:Single-sector */
 )
 {
 	if (pdrv >= DEV_MAX || count == 0)
@@ -116,7 +118,7 @@ DRESULT disk_write (
 	if (!(disc[pdrv]->features & FEATURE_MEDIUM_CANWRITE))
 		return RES_WRPRT;
 
-	return disc[pdrv]->vt->write_sectors(disc[pdrv], buff, sector, count) ? RES_OK : RES_ERROR;
+	return disc[pdrv]->vt->write_sectors(disc[pdrv], buff, sector, count, opt) ? RES_OK : RES_ERROR;
 }
 
 
@@ -140,17 +142,21 @@ DRESULT disk_ioctl (
 
 	switch (ctrl) {
 		case CTRL_SYNC:
-			disc[pdrv]->vt->flush(disc[pdrv]);
-			res = RES_OK;
+			res = disc[pdrv]->vt->flush(disc[pdrv]) ? RES_OK : RES_ERROR;
 			break;
 
 		case GET_SECTOR_COUNT:
 			*(LBA_t*)buff = disc[pdrv]->num_sectors;
-			res = ~disc[pdrv]->num_sectors != 0 ? RES_OK : RES_ERROR;
+			res = ~disc[pdrv]->num_sectors ? RES_OK : RES_ERROR;
 			break;
 
 		case GET_SECTOR_SIZE:
 			*(WORD*)buff = disc[pdrv]->sector_sz;
+			res = RES_OK;
+			break;
+
+		case GET_BLOCK_SIZE:
+			*(DWORD*)buff = disc[pdrv]->block_sz;
 			res = RES_OK;
 			break;
 

@@ -164,7 +164,7 @@ int config_update_global(bool checkConfigDevice) {
 	fprintf(fp, "Disable MemCard PRO GameID=%s\r\n", disableMCPGameIDStr[swissSettings.disableMCPGameID]);
 	fprintf(fp, "Disable Video Patches=%s\r\n", disableVideoPatchesStr[swissSettings.disableVideoPatches]);
 	fprintf(fp, "Force Video Active=%s\r\n", swissSettings.forceVideoActive ? "Yes":"No");
-	fprintf(fp, "Force DTV Status=%s\r\n", swissSettings.forceDTVStatus ? "Yes":"No");
+	fprintf(fp, "Force DTV Status=%s\r\n", forceDTVStatusStr[swissSettings.forceDTVStatus]);
 	fprintf(fp, "Last DTV Status=%s\r\n", getRawDTVStatus() ? "Yes":"No");
 	fprintf(fp, "Pause for resolution change=%s\r\n", swissSettings.pauseAVOutput ? "Yes":"No");
 	fprintf(fp, "AutoBoot=%s\r\n", swissSettings.autoBoot ? "Yes":"No");
@@ -172,7 +172,9 @@ int config_update_global(bool checkConfigDevice) {
 	fprintf(fp, "InitNetwork=%s\r\n", swissSettings.initNetworkAtStart ? "Yes":"No");
 	fprintf(fp, "IGRType=%s\r\n", igrTypeStr[swissSettings.igrType]);
 	fprintf(fp, "AVECompat=%s\r\n", aveCompatStr[swissSettings.aveCompat]);
-	fprintf(fp, "FileBrowserType=%s\r\n", fileBrowserStr[swissSettings.fileBrowserType]);
+	fprintf(fp, "FileBrowserType=%s\r\n", fileBrowserTypeStr[swissSettings.fileBrowserType]);
+	fprintf(fp, "AppsBrowserType=%s\r\n", fileBrowserTypeStr[swissSettings.appsBrowserType]);
+	fprintf(fp, "GameBrowserType=%s\r\n", fileBrowserTypeStr[swissSettings.gameBrowserType]);
 	fprintf(fp, "BS2Boot=%s\r\n", bs2BootStr[swissSettings.bs2Boot]);
 	fprintf(fp, "RT4KHostIP=%s\r\n", swissSettings.rt4kHostIp);
 	fprintf(fp, "RT4KPort=%hu\r\n", swissSettings.rt4kPort);
@@ -534,7 +536,12 @@ void config_parse_legacy(char *configData, void (*progress_indicator)(char*, int
 					swissSettings.forceVideoActive = !strcmp("Yes", value);
 				}
 				else if(!strcmp("Force DTV Status", name)) {
-					swissSettings.forceDTVStatus = !strcmp("Yes", value);
+					for(int i = 0; i < 3; i++) {
+						if(!strcmp(forceDTVStatusStr[i], value)) {
+							swissSettings.forceDTVStatus = i;
+							break;
+						}
+					}
 				}
 				else if(!strcmp("SMBUserName", name)) {
 					strlcpy(swissSettings.smbUser, value, sizeof(swissSettings.smbUser));
@@ -572,7 +579,7 @@ void config_parse_legacy(char *configData, void (*progress_indicator)(char*, int
 				}
 				else if(!strcmp("FileBrowserType", name)) {
 					for(int i = 0; i < BROWSER_MAX; i++) {
-						if(!strcmp(fileBrowserStr[i], value)) {
+						if(!strcmp(fileBrowserTypeStr[i], value)) {
 							swissSettings.fileBrowserType = i;
 							break;
 						}
@@ -898,7 +905,12 @@ void config_parse_global(char *configData) {
 					swissSettings.forceVideoActive = !strcmp("Yes", value);
 				}
 				else if(!strcmp("Force DTV Status", name)) {
-					swissSettings.forceDTVStatus = !strcmp("Yes", value);
+					for(int i = 0; i < 3; i++) {
+						if(!strcmp(forceDTVStatusStr[i], value)) {
+							swissSettings.forceDTVStatus = i;
+							break;
+						}
+					}
 				}
 				else if(!strcmp("Last DTV Status", name)) {
 					swissSettings.lastDTVStatus = !strcmp("Yes", value);
@@ -933,8 +945,24 @@ void config_parse_global(char *configData) {
 				}
 				else if(!strcmp("FileBrowserType", name)) {
 					for(int i = 0; i < BROWSER_MAX; i++) {
-						if(!strcmp(fileBrowserStr[i], value)) {
+						if(!strcmp(fileBrowserTypeStr[i], value)) {
 							swissSettings.fileBrowserType = i;
+							break;
+						}
+					}
+				}
+				else if(!strcmp("AppsBrowserType", name)) {
+					for(int i = 0; i < BROWSER_MAX; i++) {
+						if(!strcmp(fileBrowserTypeStr[i], value)) {
+							swissSettings.appsBrowserType = i;
+							break;
+						}
+					}
+				}
+				else if(!strcmp("GameBrowserType", name)) {
+					for(int i = 0; i < BROWSER_MAX; i++) {
+						if(!strcmp(fileBrowserTypeStr[i], value)) {
+							swissSettings.gameBrowserType = i;
 							break;
 						}
 					}
@@ -1343,6 +1371,10 @@ void config_init_environ() {
 	if(value != NULL) {
 		swissSettings.waitForUSBGecko = !!atoi(value);
 	}
+	value = getenv("VIDEO_PIXEL_PERFECT");
+	if(value != NULL) {
+		swissSettings.rt4kOptim = !!atoi(value);
+	}
 }
 
 void config_update_environ() {
@@ -1359,6 +1391,11 @@ void config_update_environ() {
 		unsetenv("USBGECKO_CHANNEL");
 		unsetenv("USBGECKO_SAFE");
 	}
+	
+	if(in_range(swissSettings.aveCompat, GCDIGITAL_COMPAT, GCVIDEO_COMPAT) && swissSettings.rt4kOptim)
+		setenv("VIDEO_PIXEL_PERFECT", "1", 1);
+	else
+		unsetenv("VIDEO_PIXEL_PERFECT");
 }
 
 SwissSettings backup;

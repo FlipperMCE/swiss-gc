@@ -295,7 +295,7 @@ void populate_meta(file_handle *f) {
 				if(diskHeader) {
 					u32 bannerOffset = 0, bannerSize = f->size;
 					if(!get_gcm_banner_fast(diskHeader, &bannerOffset, &bannerSize))
-						get_gcm_banner(f, &bannerOffset, &bannerSize);
+						get_gcm_banner(f, diskHeader, &bannerOffset, &bannerSize);
 					populate_game_meta(f, bannerOffset, bannerSize);
 					get_gcm_title(diskHeader, f->meta);
 					// Assign GCM region texture
@@ -324,6 +324,7 @@ void populate_meta(file_handle *f) {
 				getParentPath(f->name, bannerFile->name);
 				concat_path(bannerFile->name, bannerFile->name, "opening.bnr");
 				bannerFile->meta = f->meta;
+				bannerFile->device = f->device;
 				
 				if (f->device->readFile(bannerFile, NULL, 0) == 0 && bannerFile->size)
 					populate_game_meta(bannerFile, 0, bannerFile->size);
